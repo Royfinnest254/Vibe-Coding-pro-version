@@ -1,3 +1,7 @@
+<img src="docs/connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # Benchmark Methodology & Results
 
 This document describes the performance characteristics of the Connex Coordination Gateway.

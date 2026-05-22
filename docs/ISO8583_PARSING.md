@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # ISO 8583 Financial Message Parsing
 
 This document explains the mechanics of the ISO 8583-1987 financial message parser implemented in the Connex system. We will explore how message layouts are defined, how binary data is decoded using BCD (Binary Coded Decimal), and how to read the Go code inside `internal/iso8583/parser.go`.

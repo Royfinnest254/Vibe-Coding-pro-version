@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # Connex System Architecture & Quorum Mechanics
 
 Welcome to the Connex Core System Architecture guide. This document is written specifically for developers who are new to the Go programming language or new to financial coordination ledgers. By the end of this guide, you will understand how the system is laid out, how data flows through it, and how to replicate its core design from scratch.

@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # Witness Cryptographic Security & APIs
 
 This document details the security and cryptographic design of the Connex Witness Node (`cmd/witness/`). It explains how witness keys are managed, how the cryptographic bound-timestamp signature prevents attacks, and how to verify these signatures.

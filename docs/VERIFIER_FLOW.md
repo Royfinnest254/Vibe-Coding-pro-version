@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # Independent Verification & Audit Flow
 
 This document details the mechanics of the Connex transaction verifier script (`verify/verify.py`). It explains how a third-party auditor can verify a transaction bundle's integrity using only the witness public keys, without depending on the gateway server or database.

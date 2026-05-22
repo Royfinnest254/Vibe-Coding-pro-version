@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # Connex Deterministic Rules Enrichment Engine
 
 This document explains the Connex Rules Engine, which translates raw ISO 8583 banking codes into descriptive, regulatory-compliant attributes for modern credit transfers (ISO 20022). It details how to configure `rules.yaml` and how the execution engine (`internal/enrichment/engine.go`) compiles and runs these rules in Go.

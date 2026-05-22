@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # ISO 20022 XML Generation & Sanitization
 
 This document details how Connex constructs and validates `pacs.008.001.08` XML documents, which represent modern credit transfer transactions between financial institutions. It focuses on XML templates, injection mitigations, and the Go-native schema validation checks inside `internal/iso20022/assembler.go`.

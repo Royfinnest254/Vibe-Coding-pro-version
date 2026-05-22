@@ -1,3 +1,7 @@
+<img src="connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # SQLite Storage & Hash-Chain Integrity
 
 This document explains the Connex Storage Layer (`internal/storage/`) and how the system guarantees the mathematical and operational integrity of the transaction ledger. We will explore database setup, trigger-enforced immutability, cryptographic hash chaining, and concurrency controls.

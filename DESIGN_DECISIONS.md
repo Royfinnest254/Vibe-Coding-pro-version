@@ -1,3 +1,7 @@
+<img src="docs/connex_logo.png" alt="CONNEX" width="220" />
+
+---
+
 # Design Decisions
 
 This document records the rationale for significant architectural and technology choices in the Connex rebuild.

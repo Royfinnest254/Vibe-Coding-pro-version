@@ -1,4 +1,6 @@
-# CONNEX
+<img src="docs/connex_logo.png" alt="CONNEX" width="320" />
+
+---
 
 **CONNEX** is a neutral coordination layer designed for cross-institutional payments. It provides a cryptographically verifiable bridge between legacy ISO 8583 banking systems and modern ISO 20022 regulatory frameworks.
 
