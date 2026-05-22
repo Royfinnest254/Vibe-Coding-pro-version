@@ -1,4 +1,8 @@
-<img src="docs/connex_logo.png" alt="CONNEX" width="220" />
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/connex_logo_dark.png">
+  <source media="(prefers-color-scheme: light)" srcset="docs/connex_logo_light.png">
+  <img alt="CONNEX" src="docs/connex_logo_light.png" width="220">
+</picture>
 
 ---
 
