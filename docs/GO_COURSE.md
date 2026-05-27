@@ -246,29 +246,23 @@ Current time: 2026-05-27 18:51:00.123456789 +0300 EAT
 
 ---
 
-# Chapter 2: Variables — Storing Data
+# Chapter 2: Variables, Pointers, Slices, Maps & Encoding
 
 ---
 
 ## 📖 The Analogy
 
+Imagine your computer's RAM is a massive grid of safety deposit boxes. Each box has a unique number stamped on it (its **Memory Address**).
+
 ```
-Your computer's RAM is like a desk with Post-it notes.
-
-  ┌──────────┐  ┌──────────┐  ┌──────────┐  ┌──────────┐
-  │ bankName │  │  amount  │  │ balance  │  │ isOnline │
-  │          │  │          │  │          │  │          │
-  │ "Equity" │  │   1247   │  │ 98750.50 │  │   true   │
-  │  string  │  │   int    │  │ float64  │  │   bool   │
-  └──────────┘  └──────────┘  └──────────┘  └──────────┘
-
-  Each Post-it = one variable
-  The label    = the variable name
-  The value    = what is stored inside
-  The type     = what kind of data it can hold
-
-  When the program ends → all Post-its are thrown away (RAM is cleared)
+   Memory Box #1024       Memory Box #1025       Memory Box #1026
+  ┌──────────────────┐   ┌──────────────────┐   ┌──────────────────┐
+  │      "Equity"    │   │       1247       │   │     98750.50     │
+  │      (string)    │   │      (int)       │   │    (float64)     │
+  └──────────────────┘   └──────────────────┘   └──────────────────┘
 ```
+
+When you write `bankName := "Equity"`, Go goes to the grid, finds an empty box (say box `#1024`), labels it `bankName`, and slips the text `"Equity"` inside.
 
 ---
 
@@ -292,6 +286,107 @@ graph TD
     style BY fill:#1a2a1a,color:#fff
     style E fill:#3a1a1a,color:#fff
 ```
+
+---
+
+## Pointers: What Are They and Why Do We Care?
+
+A **Pointer** is a variable that stores the **address** of another variable. Instead of holding a value like `"Equity"` or `1247`, it holds the box number.
+
+- **`&` (Address-of Operator):** Reads the label on the box to get its address. Think of it as "Where is this variable?"
+- **`*` (Dereference Operator):** Goes to that address and reads or changes what is inside the box. Think of it as "Open the box at this address."
+
+```
+   ┌────────────────────────────────┐
+   │ pointerToCount := &count       │  --> holds #1025
+   └───────────────┬────────────────┘
+                   │
+                   ▼ (dereferencing with *pointerToCount)
+   ┌────────────────────────────────┐
+   │ Box #1025: count = 1247        │
+   └────────────────────────────────┘
+```
+
+Why do we need pointers in banking?
+If you pass a massive struct (like a full transaction bundle) to a function, Go's default behavior is to **copy** the entire thing. Copying takes memory and time. Instead, we pass a pointer (the memory address) to the struct. The function can read or edit the original transaction directly, without copying it!
+
+---
+
+## Slices vs. Arrays: Managing Lists of Data
+
+In banking, you deal with lists of things: lists of signatures, lists of transaction logs, list of bytes.
+
+1. **Array:** A fixed-length row of boxes. Once created, you cannot change its size.
+   `var hash [32]byte` -> exactly 32 bytes.
+2. **Slice:** A dynamic, resizable window looking at an underlying array.
+   `var signatures []SignatureEntry` -> can grow or shrink.
+
+### Under the Hood of a Slice
+A slice is actually a small struct containing three things:
+1. **Pointer:** The address where the list starts in memory.
+2. **Length (`len`):** How many items are currently in the slice.
+3. **Capacity (`cap`):** How many items the slice *can* hold before Go must allocate a new, larger backing array.
+
+```
+                  Slice Header: [ Pointer: #2000, Length: 2, Capacity: 4 ]
+                                        │
+                                        ▼
+Backing Array:  [ "Alpha", "Beta", (empty), (empty) ]
+                 #2000    #2008    #2016    #2024
+```
+
+When you call `append(slice, "Gamma")`, Go adds `"Gamma"` to the next empty spot. If the capacity is full, Go automatically:
+1. Creates a new, double-sized backing array somewhere else in memory.
+2. Copies the old items to the new array.
+3. Adds the new item.
+4. Updates the slice pointer to point to the new array.
+
+---
+
+## Maps: Key-Value Storage
+
+A map is like a physical index card box. You search for a card by a **Key** (like field number `4` in ISO 8583) and retrieve the **Value** (like the amount `"000000100000"`).
+
+In Go, maps are declared as: `map[KeyType]ValueType`.
+Example: `Fields map[int]string` -> keys are integers, values are strings.
+
+### The "Comma OK" Idiom
+What happens if you search for a key that isn't in the map? Go returns the "zero value" (like `""` for string or `0` for int). In banking, you must know if a field is genuinely blank or if it simply wasn't sent. We check this using the "comma ok" syntax:
+
+```go
+value, ok := myMap[key]
+```
+- If `ok` is `true`, the key exists in the map, and `value` holds the value.
+- If `ok` is `false`, the key does not exist in the map.
+
+---
+
+## ASCII vs. BCD: How Banks Save Bandwidth
+
+Legacy mainframes and ATMs communicate using the **ISO 8583** standard. To save network bandwidth, they encode numbers using **BCD (Binary Coded Decimal)**.
+
+Let's compare how the number `1234` is sent across the wire:
+
+```
+ASCII Encoding (1 byte per character):
+Character:       '1'          '2'          '3'          '4'
+Binary:       00110001     00110010     00110011     00110100
+Hex Value:      0x31         0x32         0x33         0x34      --> Total: 4 bytes
+
+BCD Encoding (4 bits per digit, packed 2 digits per byte):
+Digits:         1    2         3    4
+Binary:        0001 0010      0011 0100
+Hex Value:       0x12           0x34                         --> Total: 2 bytes (50% savings!)
+```
+
+### Bit Shifting to Decode BCD
+To decode a single byte containing two BCD digits (like `0x12`):
+1. **High Nibble (first digit `1`):** Shift the byte 4 bits to the right.
+   `0x12` is `00010010`. Shift right by 4: `00000001` (which is `1`).
+   In Go: `digit1 := b >> 4`
+2. **Low Nibble (second digit `2`):** Mask out the high bits using a bitwise AND operator `&` with `0x0F` (`00001111`).
+   `00010010 & 00001111` = `00000010` (which is `2`).
+   In Go: `digit2 := b & 0x0F`
 
 ---
 
@@ -357,35 +452,51 @@ Every transaction in history gets a unique ID because time + randomness = unique
 
 ---
 
+## 🔍 Real Code - BCD Decoding in `internal/iso8583/parser.go`
+
+Let's read the real code that translates BCD bytes back into readable text strings:
+
+```go
+func decodeBCD(bytes []byte, digits int) string {
+    var sb strings.Builder
+    for _, b := range bytes {
+        sb.WriteString(fmt.Sprintf("%02x", b))
+    }
+    val := sb.String()
+    if len(val) > digits {
+        val = val[:digits]
+    }
+    return val
+}
+```
+
+---
+
 ## ❓ Ask Why?
 
 - **Why** does CONNEX store money as `float64` and not just `int`?
 - **Why** does Go's time format use `"20060102"` instead of `"YYYYMMDD"` like other languages?
+- **Why** does BCD decoding use `%02x` instead of normal print formats?
 
-*(Answer #2: Go's time package uses a specific reference moment — January 2, 2006, 15:04:05 — as its template. The numbers 1,2,3,4,5,6 represent month,day,hour,minute,second,year in order. This is quirky but memorable once you know it.)*
-
----
-
-## ✏️ Quiz 2
-
-Create `sandbox/quiz2.go`. Create these variables and print them in a formatted sentence:
-
-| Variable | Type | Value |
-|----------|------|-------|
-| `bankName` | `string` | `"Central Bank of Kenya"` |
-| `transactionCount` | `int` | `1247` |
-| `totalAmountKES` | `float64` | `98750.50` |
-| `systemOnline` | `bool` | `true` |
-| `witnessPort` | `int` | `8091` |
-
-Required output:
-```
-Bank: Central Bank of Kenya | Transactions: 1247 | Total: KES 98750.50 | Port: 8091 | Online: true
-```
+*(Answers: 
+1. CONNEX gateway converts the cents into standard currency units for the ISO 20022 XML translation. In real bank ledgers, however, integers are always preferred to avoid floating-point rounding errors.
+2. Go's time package uses a specific reference moment — January 2, 2006, 15:04:05 — as its template. The numbers 1,2,3,4,5,6 represent month,day,hour,minute,second,year in order. This is quirky but memorable once you know it.
+3. Since each half of a BCD byte is a number from 0-9, printing the byte in hexadecimal format (base-16) naturally separates the two nibbles! For example, `0x12` printed as hex gives exactly `"12"`. It's a clever, high-performance shortcut to decode BCD digits!)*
 
 ---
 
-## ✅ Answer — Quiz 2
+## ✏️ Quiz 2A: Variable & Pointer Manipulation
+
+Create `sandbox/quiz2a.go`. Write a program that:
+1. Declares a variable `balance` as a float64 with a value of `50000.75`.
+2. Declares a pointer `p` that points to `balance`.
+3. Prints the memory address stored in `p` and the value stored at that address.
+4. Modifies the balance to `65000.20` using the pointer `p`.
+5. Prints the new value of `balance` directly.
+
+---
+
+## ✅ Answer — Quiz 2A
 
 ```go
 package main
@@ -393,33 +504,112 @@ package main
 import "fmt"
 
 func main() {
-    bankName         := "Central Bank of Kenya"
-    transactionCount := 1247
-    totalAmountKES   := 98750.50
-    systemOnline     := true
-    witnessPort      := 8091
+    balance := 50000.75
+    p := &balance // p holds the memory address of balance
 
-    fmt.Printf("Bank: %s | Transactions: %d | Total: KES %.2f | Port: %d | Online: %v\n",
-        bankName, transactionCount, totalAmountKES, witnessPort, systemOnline)
+    fmt.Printf("Memory address: %p\n", p)
+    fmt.Printf("Value at address: %.2f\n", *p)
+
+    *p = 65000.20 // change the value inside balance's box
+
+    fmt.Printf("Updated balance: %.2f\n", balance)
 }
 ```
 
-**Format verb cheat sheet:**
-
+**Expected Output:**
 ```
-  ┌──────┬────────────────────────────┬────────────────┐
-  │ Verb │ Use for                    │ Example output │
-  ├──────┼────────────────────────────┼────────────────┤
-  │  %s  │ string                     │ Central Bank   │
-  │  %d  │ integer                    │ 1247           │
-  │ %.2f │ float (2 decimal places)   │ 98750.50       │
-  │  %v  │ anything (default format)  │ true           │
-  │  %x  │ bytes as hex               │ 3f8a1c2b       │
-  │  \n  │ newline character          │ (new line)     │
-  └──────┴────────────────────────────┴────────────────┘
+Memory address: 0xc0000120b8 (will vary per run)
+Value at address: 50000.75
+Updated balance: 65000.20
 ```
 
 ---
+
+## ✏️ Quiz 2B: Slices & Capacity
+
+Create `sandbox/quiz2b.go`. Write a program that:
+1. Declares a slice of strings `witnesses` containing `"alpha"` and `"beta"`.
+2. Prints its current length and capacity.
+3. Appends `"gamma"` to the slice.
+4. Prints the new length and capacity.
+5. Appends `"delta"` and `"epsilon"`.
+6. Prints the final length, capacity, and contents.
+
+---
+
+## ✅ Answer — Quiz 2B
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    witnesses := []string{"alpha", "beta"}
+    fmt.Printf("Start: len=%d, cap=%d, contents=%v\n", len(witnesses), cap(witnesses), witnesses)
+
+    witnesses = append(witnesses, "gamma")
+    fmt.Printf("After 1 append: len=%d, cap=%d, contents=%v\n", len(witnesses), cap(witnesses), witnesses)
+
+    witnesses = append(witnesses, "delta", "epsilon")
+    fmt.Printf("After 3 appends: len=%d, cap=%d, contents=%v\n", len(witnesses), cap(witnesses), witnesses)
+}
+```
+
+**Expected Output:**
+```
+Start: len=2, cap=2, contents=[alpha beta]
+After 1 append: len=3, cap=4, contents=[alpha beta gamma]
+After 3 appends: len=5, cap=8, contents=[alpha beta gamma delta epsilon]
+```
+
+**Beginner Pitfall:** Notice that the capacity doubled from 2 to 4 when we appended `"gamma"`, and then from 4 to 8 when we appended `"delta"` and `"epsilon"`. Go allocated a new array and copied the data automatically under the hood to accommodate the growth.
+
+---
+
+## ✏️ Quiz 2C: Maps & "Comma OK" check
+
+Create `sandbox/quiz2c.go`. Write a program that:
+1. Creates a map named `isoFields` mapping integer keys to string values.
+2. Inserts key `3` with value `"310100"` (Processing Code) and key `4` with value `"000000500000"` (Amount).
+3. Looks up key `4` using the "comma ok" idiom and prints whether it was found.
+4. Looks up key `11` (STAN) using the "comma ok" idiom and prints whether it was found.
+
+---
+
+## ✅ Answer — Quiz 2C
+
+```go
+package main
+
+import "fmt"
+
+func main() {
+    isoFields := make(map[int]string)
+    isoFields[3] = "310100"
+    isoFields[4] = "000000500000"
+
+    val4, ok4 := isoFields[4]
+    if ok4 {
+        fmt.Printf("Field 4 found: %s\n", val4)
+    } else {
+        fmt.Println("Field 4 not found!")
+    }
+
+    val11, ok11 := isoFields[11]
+    if ok11 {
+        fmt.Printf("Field 11 found: %s\n", val11)
+    } else {
+        fmt.Println("Field 11 not found (returned empty zero-value: \"" + val11 + "\")")
+    }
+}
+```
+
+**Expected Output:**
+```
+Field 4 found: 000000500000
+Field 11 not found (returned empty zero-value: "")
+```
 
 ---
 
@@ -429,8 +619,10 @@ Answer from memory — no peeking:
 
 1. What does `package main` tell Go?
 2. What does `:=` do that `=` cannot?
-3. What data type holds `"QUORUM_MET"`? What type holds `8091`? What type holds `1000.00`?
-4. Name three toolboxes in the CONNEX Witness Node and what each does.
+3. What is a pointer and how do `&` and `*` work?
+4. What is the difference between length and capacity in a slice?
+5. How does the "comma ok" syntax check if a map contains a key?
+6. Explain why packed BCD uses half the bytes of ASCII to store numbers.
 
 ---
 
@@ -537,52 +729,94 @@ type Bundle struct {
                                           not "BundleID"
 ```
 
-**Uppercase vs lowercase field names:**
+---
 
+## Struct Instantiation: Value vs. Pointer
+
+There are two primary ways to create (instantiate) a struct:
+
+### 1. As a Value (Stored directly on the stack)
+```go
+entry := SignatureEntry{
+    Witness: "alpha",
+    Signature: "a1b2c3...",
+}
 ```
-  type Bundle struct {          type witness struct {
-      BundleID string               priv ed25519.PrivateKey
-      ────────                      ────
-      UPPERCASE = Public            lowercase = Private
-      Any code anywhere             Only code INSIDE this
-      can read this field           package can access this
-  }                             }
+This allocates the struct data directly in the local execution scope. If you pass `entry` to another function, Go copies the entire struct.
 
-  WHY: The private key must NEVER leak outside the witness package.
-       Making it lowercase enforces this at the language level.
+### 2. As a Pointer (Allocated on the heap)
+```go
+entryPtr := &SignatureEntry{
+    Witness: "alpha",
+    Signature: "a1b2c3...",
+}
+```
+The `&` operator allocates the struct in memory and returns its **memory address** (a pointer). Passing `entryPtr` to a function only copies the memory address (8 bytes), which is extremely efficient and allows the function to modify the original struct fields directly.
+
+---
+
+## ✏️ Quiz 3A: Struct Pointers and Modification
+
+Create `sandbox/quiz3a.go`. Write a program that:
+1. Defines a struct `WitnessState` with fields: `Name` (string) and `Active` (bool).
+2. Write a function `deactivate(w *WitnessState)` that changes `Active` to `false` using the pointer.
+3. In `main()`, instantiate a pointer to `WitnessState` with `Name: "Beta"` and `Active: true`.
+4. Print the state, call `deactivate`, and print the state again to verify it has changed.
+
+---
+
+## ✅ Answer — Quiz 3A
+
+```go
+package main
+
+import "fmt"
+
+type WitnessState struct {
+    Name   string
+    Active bool
+}
+
+func deactivate(w *WitnessState) {
+    w.Active = false // Modifies the original struct since 'w' is a pointer
+}
+
+func main() {
+    // Instantiate as a pointer using the & operator
+    witness := &WitnessState{
+        Name:   "Beta",
+        Active: true,
+    }
+
+    fmt.Printf("Before: Name=%s, Active=%t\n", witness.Name, witness.Active)
+
+    deactivate(witness)
+
+    fmt.Printf("After:  Name=%s, Active=%t\n", witness.Name, witness.Active)
+}
+```
+
+**Expected Output:**
+```
+Before: Name=Beta, Active=true
+After:  Name=Beta, Active=false
 ```
 
 ---
 
-## ❓ Ask Why?
+## ✏️ Quiz 3B: JSON Serialization & Deserialization
 
-- **Why** does `Signatures` use `[]SignatureEntry` instead of just `string`?
-- **Why** does the `Bundle` struct have both `OriginalHash` AND `EnrichedHash`?
-
-*(Answer #2: The `OriginalHash` is the fingerprint of the raw legacy ISO 8583 message that came in. The `EnrichedHash` is the fingerprint of the translated ISO 20022 XML that went out. Storing both proves the translation was faithful — the two hashes chain together into `ChainHash`, which witnesses sign.)*
-
----
-
-## ✏️ Quiz 3
-
-Create `sandbox/quiz3.go`:
-
-1. Define a struct `BankTransaction` with JSON tags:
-
-| Field | Type | JSON Tag |
-|-------|------|----------|
-| `ID` | `string` | `"id"` |
-| `SenderBank` | `string` | `"sender_bank"` |
-| `ReceiverBank` | `string` | `"receiver_bank"` |
-| `AmountKES` | `float64` | `"amount_kes"` |
-| `IsApproved` | `bool` | `"is_approved"` |
-
-2. Create one transaction with realistic values
-3. Use `json.Marshal` to convert it to JSON and print it
+Create `sandbox/quiz3b.go`. Write a program that:
+1. Defines a struct `SystemConfig` with public fields `Port` (int) and `DBPath` (string), mapped to JSON tags `"port"` and `"db_path"`.
+2. Adds a private field `secretToken` (string).
+3. In `main()`, instantiate `SystemConfig` with a port of `8080`, database path `"data/connex.db"`, and token `"SUPER_SECRET"`.
+4. Serializes the struct to JSON using `json.Marshal` and prints the JSON string.
+5. In the printed JSON, observe whether the private field `secretToken` is present or missing.
+6. Write a JSON string `{"port":9000,"db_path":"/tmp/test.db"}` and deserialize it back into a new `SystemConfig` struct using `json.Unmarshal`. Print the struct fields.
 
 ---
 
-## ✅ Answer — Quiz 3
+## ✅ Answer — Quiz 3B
 
 ```go
 package main
@@ -592,57 +826,70 @@ import (
     "fmt"
 )
 
-type BankTransaction struct {
-    ID           string  `json:"id"`
-    SenderBank   string  `json:"sender_bank"`
-    ReceiverBank string  `json:"receiver_bank"`
-    AmountKES    float64 `json:"amount_kes"`
-    IsApproved   bool    `json:"is_approved"`
+type SystemConfig struct {
+    Port        int    `json:"port"`
+    DBPath      string `json:"db_path"`
+    secretToken string // private field
 }
 
 func main() {
-    tx := BankTransaction{
-        ID:           "TX-2026-001",
-        SenderBank:   "KCB Bank",
-        ReceiverBank: "Equity Bank",
-        AmountKES:    15750.00,
-        IsApproved:   true,
+    config := SystemConfig{
+        Port:        8080,
+        DBPath:      "data/connex.db",
+        secretToken: "SUPER_SECRET",
     }
 
-    jsonBytes, err := json.Marshal(tx)
+    // 1. Serialize to JSON
+    jsonBytes, err := json.Marshal(config)
     if err != nil {
-        fmt.Println("Error:", err)
+        fmt.Println("Error marshalling:", err)
         return
     }
-    fmt.Println(string(jsonBytes))
+    fmt.Println("JSON output:", string(jsonBytes))
+
+    // 2. Deserialize from JSON string
+    inputJSON := `{"port":9000,"db_path":"/tmp/test.db"}`
+    var newConfig SystemConfig
+
+    // We MUST pass a pointer to newConfig so Unmarshal can modify its fields!
+    err = json.Unmarshal([]byte(inputJSON), &newConfig)
+    if err != nil {
+        fmt.Println("Error unmarshalling:", err)
+        return
+    }
+
+    fmt.Printf("Deserialized struct: Port=%d, DBPath=%s, secretToken=%q\n",
+        newConfig.Port, newConfig.DBPath, newConfig.secretToken)
 }
 ```
 
-**What happens inside `json.Marshal`:**
-
+**Expected Output:**
 ```
-  BankTransaction struct            JSON output
-  ─────────────────────            ────────────────────────────────────────
-  ID:           "TX-2026-001"  →   "id":            "TX-2026-001"
-  SenderBank:   "KCB Bank"     →   "sender_bank":   "KCB Bank"
-  ReceiverBank: "Equity Bank"  →   "receiver_bank": "Equity Bank"
-  AmountKES:    15750.00       →   "amount_kes":    15750
-  IsApproved:   true           →   "is_approved":   true
-                                                     ▲
-  The struct tag renames                        struct tag
-  the field in the output                       did this
+JSON output: {"port":8080,"db_path":"data/connex.db"}
+Deserialized struct: Port=9000, DBPath=/tmp/test.db, secretToken=""
 ```
 
-**Expected output:**
-```json
-{"id":"TX-2026-001","sender_bank":"KCB Bank","receiver_bank":"Equity Bank","amount_kes":15750,"is_approved":true}
-```
+**Common Mistakes & Pitfalls:**
+- The private field `secretToken` is completely ignored in the JSON output, and when deserializing, it stays as its default empty string value `""`. This is because the `json` package runs outside our main package and cannot access private fields.
+- Forgetting to pass the address (`&newConfig`) to `json.Unmarshal`. If you pass it by value, Go passes a copy, and your original struct is never updated.
 
 ---
 
+## 🔄 Review Checkpoint 2
+
+Answer from memory:
+
+1. What is the difference between instantiating a struct as `MyStruct{}` vs `&MyStruct{}`?
+2. What are struct tags used for, and how does the `json` package read them?
+3. Why is it important to capitalize fields in Go structs that will be serialized to JSON?
+4. What happens when you try to access a lowercase field of a struct imported from another package?
+5. Write the correct way to call `json.Unmarshal` to fill a struct variable `config`.
+
+
+
 ---
 
-# Chapter 4: Functions — Reusable Recipes
+# Chapter 4: Functions & Scope — Reusable Recipes
 
 ---
 
@@ -671,15 +918,63 @@ func main() {
 ## Function Anatomy — Visual
 
 ```
-  func  sha256Hex  (data []byte)  string  {
-  ────  ─────────  ────────────   ──────
-   │       │            │           │
-   │    Name of      Parameter:   Return
-   │    the recipe   ingredient   type:
-   │                 named "data" gives back
-  keyword            of type      a string
-  that starts        []byte
+  func  sha256Hex  (data []byte)  (string, error)  {
+  ────  ─────────  ────────────   ───────────────
+   │       │            │                │
+   │    Name of      Parameter:       Return
+   │    the recipe   ingredient       types:
+   │                 named "data"     gives back a
+  keyword            of type          string AND
+  that starts        []byte           an error
   a recipe
+```
+
+---
+
+## Pass-by-Value vs. Pass-by-Pointer
+
+In Go, **everything is passed by value**. This means that when you pass a variable into a function, Go makes a **copy** of that variable and hands the copy to the function.
+
+### 1. Pass-by-Value (Copying the value)
+```go
+func updateAmount(amount float64) {
+    amount = 5000.00
+}
+```
+If you pass `balance` into `updateAmount`, the function gets a copy of `balance`. Changing `amount` inside the function does NOT change the original `balance` outside the function!
+
+### 2. Pass-by-Pointer (Copying the address)
+```go
+func updateAmountPtr(amount *float64) {
+    *amount = 5000.00
+}
+```
+If you pass `&balance` (the memory address) into `updateAmountPtr`, the function gets a copy of the *address*. By using `*amount` (dereferencing), the function opens the original box at that address and changes the original `balance`!
+
+---
+
+## Understanding Variables Scope
+
+Where a variable lives determines who can see it. Go has strict scoping rules:
+
+```
+  ┌────────────────────────────────────────────────────────┐
+  │ Package Scope (Declared outside functions)             │
+  │ Visible to any code in this directory/package          │
+  │ e.g., var de = map[int]fieldDef{...}                   │
+  │                                                        │
+  │   ┌────────────────────────────────────────────────┐   │
+  │   │ Local/Function Scope (Declared inside func)   │   │
+  │   │ Visible ONLY inside this function              │   │
+  │   │ e.g., bundleID := "CX-..."                     │   │
+  │   │                                                │   │
+  │   │   ┌────────────────────────────────────────┐   │   │
+  │   │   │ Block Scope (Declared inside if/for)   │   │   │
+  │   │   │ Visible ONLY inside this block         │   │   │
+  │   │   │ e.g., if err != nil { msg := "fail" }  │   │   │
+  │   │   └────────────────────────────────────────┘   │   │
+  │   └────────────────────────────────────────────────┘   │
+  └────────────────────────────────────────────────────────┘
 ```
 
 ---
@@ -775,61 +1070,117 @@ pub, _, err := loadOrGenerate(*keyPath)
 
 ---
 
-## ✏️ Quiz 4
+## ❓ Ask Why?
 
-Create `sandbox/quiz4.go`. Write two functions:
+- **Why** does Go support multiple return values instead of making us return a single object or throw exceptions?
+- **Why** is passing pointers to functions preferred for custom structs but NOT for basic types like `int` or `float64`?
 
-**`hashText(input string) string`**
-- Converts string to bytes: `[]byte(input)`
-- Hashes it: `sha256.Sum256(...)`
-- Returns the hex string
-
-**`makeTransactionID(bankCode string, seq int) string`**
-- Returns: `"TX-KCB-042-20260527"` format
-- Zero-pad the number to 3 digits using `%03d`
-- Use today's date with `time.Now().Format("20060102")`
+*(Answers: 
+1. Go rejects exceptions because they hide control flow. Returning the result and error explicitly forces the developer to handle the error immediately at the call site.
+2. Structs can be large, making copy operations expensive. Basic types like integers fit directly inside a CPU register, so copying them is faster than managing pointer dereferencing.)*
 
 ---
 
-## ✅ Answer — Quiz 4
+## ✏️ Quiz 4A: Pass-by-Value vs. Pass-by-Pointer
+
+Create `sandbox/quiz4a.go`. Write a program that:
+1. Defines a function `doubleAmountValue(val float64)` which doubles `val` and prints it inside the function.
+2. Defines a function `doubleAmountPointer(val *float64)` which doubles `val` by dereferencing the pointer.
+3. In `main()`, set `balance := 150.50`.
+4. Call `doubleAmountValue` and print the original `balance` afterwards.
+5. Call `doubleAmountPointer` and print the original `balance` afterwards. Observe the difference.
+
+---
+
+## ✅ Answer — Quiz 4A
 
 ```go
 package main
 
-import (
-    "crypto/sha256"
-    "encoding/hex"
-    "fmt"
-    "time"
-)
+import "fmt"
 
-func hashText(input string) string {
-    h := sha256.Sum256([]byte(input)) // []byte() converts string to raw bytes
-    return hex.EncodeToString(h[:])   // h[:] converts [32]byte array to a slice
+func doubleAmountValue(val float64) {
+    val = val * 2
+    fmt.Printf("Inside doubleAmountValue: %.2f\n", val)
 }
 
-func makeTransactionID(bankCode string, seq int) string {
-    today := time.Now().Format("20060102") // Format: YYYYMMDD
-    return fmt.Sprintf("TX-%s-%03d-%s", bankCode, seq, today)
-    // %03d = minimum 3 digits, zero-padded: 42 → "042", 7 → "007"
+func doubleAmountPointer(val *float64) {
+    *val = *val * 2 // dereference and modify original value
 }
 
 func main() {
-    hash := hashText("Hello CONNEX")
-    fmt.Println("SHA-256:", hash)
+    balance := 150.50
 
-    txID := makeTransactionID("KCB", 42)
-    fmt.Println("Transaction ID:", txID)
+    fmt.Println("--- Pass-by-Value Test ---")
+    doubleAmountValue(balance)
+    fmt.Printf("Original balance after function: %.2f\n", balance)
+
+    fmt.Println("\n--- Pass-by-Pointer Test ---")
+    doubleAmountPointer(&balance) // pass the memory address
+    fmt.Printf("Original balance after function: %.2f\n", balance)
 }
 ```
 
-**Expected output:**
+**Expected Output:**
 ```
-SHA-256: 3b5d5c3712955042212316173ccf37be9baaea1bc23b9f1ec95b938db4c4d96c
-Transaction ID: TX-KCB-042-20260527
+--- Pass-by-Value Test ---
+Inside doubleAmountValue: 301.00
+Original balance after function: 150.50
+
+--- Pass-by-Pointer Test ---
+Original balance after function: 301.00
 ```
 
 ---
+
+## ✏️ Quiz 4B: Multiple Returns & Scope
+
+Create `sandbox/quiz4b.go`. Write a program that:
+1. Declares a package-level constant `CommissionRate = 0.02` (2%).
+2. Defines a function `calculateFee(amount float64) (float64, float64)` that returns the commission fee (`amount * CommissionRate`) and the final net amount (`amount - fee`).
+3. In `main()`, set a transaction amount of `50000.00`.
+4. Receive the fee and net amount using multiple return values, and print them.
+5. Verify that variables inside `calculateFee` cannot be accessed inside `main()`.
+
+---
+
+## ✅ Answer — Quiz 4B
+
+```go
+package main
+
+import "fmt"
+
+// Package scope: visible to all functions in this file
+const CommissionRate = 0.02
+
+func calculateFee(amount float64) (float64, float64) {
+    fee := amount * CommissionRate      // local scope
+    net := amount - fee                 // local scope
+    return fee, net
+}
+
+func main() {
+    txAmount := 50000.00
+
+    fee, net := calculateFee(txAmount)
+
+    fmt.Printf("Transaction Amount: KES %.2f\n", txAmount)
+    fmt.Printf("Commission Fee (2%%): KES %.2f\n", fee)
+    fmt.Printf("Net Amount Received: KES %.2f\n", net)
+
+    // Pitfall check: Trying to print "fee" variable from calculateFee's scope here
+    // will fail to compile. The variables "fee" and "net" in main() are brand new variables
+    // that received the returned values.
+}
+```
+
+**Expected Output:**
+```
+Transaction Amount: KES 50000.00
+Commission Fee (2%): KES 1000.00
+Net Amount Received: KES 49000.00
+```
 
 ---
 
@@ -837,11 +1188,11 @@ Transaction ID: TX-KCB-042-20260527
 
 Answer from memory:
 
-1. Write `sha256Hex` from memory — just the 3 lines inside the function.
-2. What does `h[:]` do and why is it needed?
-3. What does `_` mean when receiving return values?
-4. What is a struct tag? Write one example.
-5. What is the difference between `string` and `[]byte`?
+1. What does it mean that Go is "pass-by-value"?
+2. How do you pass a variable by pointer to a function?
+3. What is package scope vs local function scope?
+4. Write a function signature that accepts a slice of bytes and returns a string and an error.
+5. What does the `_` character do when calling functions that return multiple values?
 
 ---
 
@@ -867,17 +1218,55 @@ Answer from memory:
 
 The difference in code:
 
-```
-  func sha256Hex(data []byte) string {   ← regular function, takes data as a parameter
+```go
+func sha256Hex(data []byte) string { ... } // regular function, takes data as parameter
 
-  func (b *Bundle) Summary() string {    ← method, "b" is this specific bundle
-      return b.BundleID + ": " + b.QuorumStatus
-  }                                      ← access fields with "b."
+func (b *Bundle) Summary() string {
+    return b.BundleID + ": " + b.QuorumStatus
+} // method, "b" is this specific bundle. Access fields using "b.Field"
 ```
+
+In the method definition, `(b *Bundle)` is called the **Receiver**. It binds the function to the `Bundle` struct.
+
+---
+
+## Value Receivers vs. Pointer Receivers
+
+Go methods can declare either a **Value Receiver** or a **Pointer Receiver**. Understanding the difference is crucial for beginner Go programmers.
+
+```
+       Value Receiver: func (t MyStruct) Method()
+       ┌────────────────────────────────────────────────────────┐
+       │ Passes a COPY of the struct.                           │
+       │ Modifying fields inside the method does NOT affect the │
+       │ original struct. (Read-Only)                           │
+       └────────────────────────────────────────────────────────┘
+
+       Pointer Receiver: func (t *MyStruct) Method()
+       ┌────────────────────────────────────────────────────────┐
+       │ Passes the MEMORY ADDRESS of the struct.               │
+       │ Modifying fields inside the method modifies the        │
+       │ original struct. (Read & Write)                        │
+       └────────────────────────────────────────────────────────┘
+```
+
+### How to Choose:
+- **Use a Pointer Receiver if:**
+  1. The method needs to mutate (modify) the struct fields.
+  2. The struct is large (so copying it on every call would be slow).
+- **Use a Value Receiver if:**
+  1. The struct is small (like a simple coordination coordinate).
+  2. The method is read-only and does not mutate any state.
+
+### Automatic Dereferencing (Go's Syntactic Sugar)
+In other languages, if you have a pointer, you must write `(*t).Field` to access it. In Go, you can just write `t.Field`. Go automatically dereferences the pointer under the hood!
+Furthermore, if you call a method that expects a pointer receiver (e.g., `t.Mutate()`) on a value variable (e.g., `var t MyStruct`), Go automatically converts it to `(&t).Mutate()` for you!
 
 ---
 
 ## HTTP Request Flow Through a Method
+
+In CONNEX, our HTTP servers use methods on structs to manage state (like the private keys loaded into memory):
 
 ```mermaid
 sequenceDiagram
@@ -928,15 +1317,15 @@ func (w *witness) handlePubkey(rw http.ResponseWriter, r *http.Request) {
 
 ```go
 func (m *Message) AmountKES() float64 {
-    s, ok := m.Fields[4]     // m.Fields is a map. Look up key "4" (the amount field)
-    if !ok || s == "" {      // If key "4" not found, or it is blank...
-        return 0             // ...amount is zero
-    }
-    n, err := strconv.ParseInt(strings.TrimLeft(s, "0 "), 10, 64)
-    if err != nil {
-        return 0
-    }
-    return float64(n) / 100.0
+	s, ok := m.Fields[4]     // m.Fields is a map. Look up key "4" (the amount field)
+	if !ok || s == "" {      // If key "4" not found, or it is blank...
+		return 0             // ...amount is zero
+	}
+	n, err := strconv.ParseInt(strings.TrimLeft(s, "0 "), 10, 64)
+	if err != nil {
+		return 0
+	}
+	return float64(n) / 100.0
 }
 ```
 
@@ -958,69 +1347,138 @@ func (m *Message) AmountKES() float64 {
 
 ---
 
-## ✏️ Quiz 5
+## ❓ Ask Why?
 
-Create `sandbox/quiz5.go`. Add two methods to `BankTransaction`:
+- **Why** do we declare `AmountKES` on `*Message` (pointer) instead of `Message` (value) if it is read-only?
+- **Why** does Go allow us to write `w.witnessName` instead of `(*w).witnessName`?
 
-**`Summary() string`** → returns:
-`"TX-ID: [ID] | [SenderBank] → [ReceiverBank] | KES [AmountKES]"`
-
-**`IsLargeTransaction() bool`** → returns `true` if `AmountKES > 100000`
-
-In `main()`, create a transaction with amount `250000` and call both methods.
+*(Answers: 
+1. Efficiency. Even if a method is read-only, passing the `Message` struct by value would copy the entire map of fields. Using a pointer receiver avoids copy overhead.
+2. Go's compiler is designed to reduce boilerplate. It automatically converts `w.witnessName` to `(*w).witnessName` for pointers to structs, making the code much more readable.)*
 
 ---
 
-## ✅ Answer — Quiz 5
+## ✏️ Quiz 5A: Value Receiver (Read-Only)
+
+Create `sandbox/quiz5a.go`. Write a program that:
+1. Defines a struct `FeeCalculator` with fields `FixedFee` (float64) and `PercentageFee` (float64).
+2. Adds a method `Calculate(amount float64) float64` with a **Value Receiver** (`f FeeCalculator`) that returns `FixedFee + (amount * PercentageFee)`.
+3. In `main()`, instantiate `FeeCalculator` with a fixed fee of `50.00` and percentage fee of `0.01` (1%).
+4. Call the `Calculate` method for a transaction of `10000.00` and print the result.
+
+---
+
+## ✅ Answer — Quiz 5A
 
 ```go
 package main
 
 import "fmt"
 
-type BankTransaction struct {
-    ID           string
-    SenderBank   string
-    ReceiverBank string
-    AmountKES    float64
-    IsApproved   bool
+type FeeCalculator struct {
+    FixedFee      float64
+    PercentageFee float64
 }
 
-func (t *BankTransaction) Summary() string {
-    return fmt.Sprintf("TX-ID: %s | %s → %s | KES %.2f",
-        t.ID, t.SenderBank, t.ReceiverBank, t.AmountKES)
-}
-
-func (t *BankTransaction) IsLargeTransaction() bool {
-    return t.AmountKES > 100000
+// Value receiver: f is a copy, read-only
+func (f FeeCalculator) Calculate(amount float64) float64 {
+    return f.FixedFee + (amount * f.PercentageFee)
 }
 
 func main() {
-    tx := &BankTransaction{
-        ID:           "TX-2026-099",
-        SenderBank:   "KCB Bank",
-        ReceiverBank: "Equity Bank",
-        AmountKES:    250000.00,
-        IsApproved:   true,
+    calc := FeeCalculator{
+        FixedFee:      50.00,
+        PercentageFee: 0.01,
     }
 
-    fmt.Println(tx.Summary())
-
-    if tx.IsLargeTransaction() {
-        fmt.Println("⚠️  ALERT: Large transaction — flagged for compliance review")
-    } else {
-        fmt.Println("✅  Standard transaction cleared")
-    }
+    fee := calc.Calculate(10000.00)
+    fmt.Printf("Total Fee: KES %.2f\n", fee)
 }
 ```
 
-**Expected output:**
+**Expected Output:**
 ```
-TX-ID: TX-2026-099 | KCB Bank → Equity Bank | KES 250000.00
-⚠️  ALERT: Large transaction — flagged for compliance review
+Total Fee: KES 150.00
 ```
 
 ---
+
+## ✏️ Quiz 5B: Pointer Receiver (Mutating State)
+
+Create `sandbox/quiz5b.go`. Write a program that:
+1. Defines a struct `BankAccount` with fields `AccountHolder` (string) and `Balance` (float64).
+2. Adds a method `Deposit(amount float64)` with a **Pointer Receiver** (`a *BankAccount`) that adds `amount` to the account `Balance`.
+3. Adds a method `Withdraw(amount float64) bool` with a **Pointer Receiver** (`a *BankAccount`) that deducts `amount` if funds are sufficient, returning `true`. If funds are insufficient, it returns `false` and makes no changes.
+4. In `main()`, create an account for `"John Doe"` with a balance of `500.00`.
+5. Deposit `1000.00`. Withdraw `300.00`. Withdraw `2000.00`. Print the account balance after each step to verify correctness.
+
+---
+
+## ✅ Answer — Quiz 5B
+
+```go
+package main
+
+import "fmt"
+
+type BankAccount struct {
+    AccountHolder string
+    Balance       float64
+}
+
+// Pointer receiver: modifies the actual balance
+func (a *BankAccount) Deposit(amount float64) {
+    a.Balance += amount
+}
+
+// Pointer receiver: modifies balance and returns whether successful
+func (a *BankAccount) Withdraw(amount float64) bool {
+    if a.Balance < amount {
+        return false
+    }
+    a.Balance -= amount
+    return true
+}
+
+func main() {
+    acc := &BankAccount{
+        AccountHolder: "John Doe",
+        Balance:       500.00,
+    }
+
+    fmt.Printf("Initial Balance: KES %.2f\n", acc.Balance)
+
+    acc.Deposit(1000.00)
+    fmt.Printf("After Deposit:   KES %.2f\n", acc.Balance)
+
+    if acc.Withdraw(300.00) {
+        fmt.Println("Withdrawal of 300.00 successful ✓")
+    } else {
+        fmt.Println("Withdrawal of 300.00 failed ❌")
+    }
+    fmt.Printf("Balance:         KES %.2f\n", acc.Balance)
+
+    if acc.Withdraw(2000.00) {
+        fmt.Println("Withdrawal of 2000.00 successful ✓")
+    } else {
+        fmt.Println("Withdrawal of 2000.00 failed ❌ (Insufficient Funds)")
+    }
+    fmt.Printf("Final Balance:   KES %.2f\n", acc.Balance)
+}
+```
+
+**Expected Output:**
+```
+Initial Balance: KES 500.00
+After Deposit:   KES 1500.00
+Withdrawal of 300.00 successful ✓
+Balance:         KES 1200.00
+Withdrawal of 2000.00 failed ❌ (Insufficient Funds)
+Final Balance:   KES 1200.00
+```
+
+**Common Mistakes & Pitfalls:**
+- Declaring `Deposit` with a value receiver `(a BankAccount)`. If you do this, the function will compile, but when you call `acc.Deposit(1000.00)`, Go will pass a *copy* of `acc` to `Deposit`. The copy will have its balance increased, but the original `acc` variable in `main()` will remain unchanged!
 
 ---
 
@@ -1043,6 +1501,20 @@ TX-ID: TX-2026-099 | KCB Bank → Equity Bank | KES 250000.00
 
 ---
 
+## The Error Interface Under the Hood
+
+In Go, there is no `try/catch` mechanism. Instead, errors are treated as normal values. The language defines a built-in interface called `error`:
+
+```go
+type error interface {
+    Error() string
+}
+```
+
+Any struct that implements the `Error() string` method can be used as an error. When a function executes successfully, it returns `nil` for its error parameter. If something goes wrong, it returns an error object, which you must check immediately.
+
+---
+
 ## The Error Handling Pattern — Visual
 
 ```mermaid
@@ -1062,7 +1534,15 @@ flowchart TD
 
 ---
 
-## How Errors Chain in CONNEX
+## Error Wrapping and Chaining
+
+When an error happens deep inside your codebase (for example, SQLite fails to write to disk), passing that raw error all the way back up to the user is not very helpful. You want to add context (e.g., *"database write failed"*).
+
+In Go, we do this using **Error Wrapping** via the `%w` formatting verb:
+
+```go
+return fmt.Errorf("database write failed: %w", err)
+```
 
 ```mermaid
 flowchart BT
@@ -1077,7 +1557,15 @@ flowchart BT
     style LOG fill:#1a3a5f,color:#fff,stroke:#4a90e2
 ```
 
-The `%w` verb in `fmt.Errorf` **wraps** the error — it attaches the new message to the original, creating a chain. When you look at the final error, you see the full trail of what went wrong and where.
+By wrapping errors with `%w`, we preserve the entire execution path.
+
+### Inspecting Error Chains (`errors.Is` and `errors.As`)
+Because errors are wrapped inside other errors, you cannot always do a simple equality check like `err == sql.ErrNoRows`. Go provides two key functions:
+1. **`errors.Is(err, target)`:** Traverses the entire error chain to check if any error in the chain matches the `target`.
+   ```go
+   if errors.Is(err, sql.ErrNoRows) { // handle empty database case }
+   ```
+2. **`errors.As(err, &targetStruct)`:** Traverses the chain to check if any error matches a specific custom struct type, extracting it for you.
 
 ---
 
@@ -1115,53 +1603,156 @@ if err := os.WriteFile(pubPath, pub, 0644); err != nil {
 
 ---
 
-## ✏️ Quiz 6
+## ❓ Ask Why?
 
-Create `sandbox/quiz6.go`. Write `readTransactionFile(filename string) (string, error)`:
-1. Call `os.ReadFile(filename)`
-2. On failure → return `""` and `fmt.Errorf("readTransactionFile: %w", err)`
-3. On success → return `string(data)` and `nil`
+- **Why** does Go enforce checking `err != nil` manually instead of using automated exceptions?
+- **Why** must we use `errors.Is(err, target)` instead of `err == target`?
 
-Call it in `main()` with a file that does not exist and print the error.
+*(Answers: 
+1. Readability and predictability. Exceptions create hidden jumps in code execution, making it difficult to trace security vulnerabilities. Explicit error checking makes it obvious exactly where failure modes can occur.
+2. If an error is wrapped using `fmt.Errorf("context: %w", err)`, the resulting error value is a new struct. A direct `==` check will fail. `errors.Is` unwraps the error layer-by-layer to check the original root cause.)*
 
 ---
 
-## ✅ Answer — Quiz 6
+## ✏️ Quiz 6A: Error Wrapping and Propagation
+
+Create `sandbox/quiz6a.go`. Write a program that:
+1. Defines a function `checkDatabaseConnection() error` that returns a raw error: `errors.New("connection timeout")`.
+2. Defines a function `initializeLedger() error` that calls `checkDatabaseConnection()`. If it returns an error, wrap it: `fmt.Errorf("initialize ledger: %w", err)`.
+3. In `main()`, call `initializeLedger()`. If it returns an error, print the full chain message and print the unwrapped root error using `errors.Unwrap()`.
+
+---
+
+## ✅ Answer — Quiz 6A
 
 ```go
 package main
 
 import (
+    "errors"
     "fmt"
-    "os"
 )
 
-func readTransactionFile(filename string) (string, error) {
-    data, err := os.ReadFile(filename)
+func checkDatabaseConnection() error {
+    return errors.New("connection timeout")
+}
+
+func initializeLedger() error {
+    err := checkDatabaseConnection()
     if err != nil {
-        return "", fmt.Errorf("readTransactionFile: %w", err)
+        return fmt.Errorf("initialize ledger: %w", err) // Wrap error with %w
     }
-    return string(data), nil
+    return nil
 }
 
 func main() {
-    content, err := readTransactionFile("transactions.json")
+    err := initializeLedger()
     if err != nil {
-        fmt.Println("Failed to load:", err)
+        fmt.Println("Full Error Chain:", err)
+        
+        // Unwrap to find the root cause
+        rootErr := errors.Unwrap(err)
+        fmt.Println("Root Cause:", rootErr)
         return
     }
-    fmt.Println("File contents:", content)
+    fmt.Println("Ledger initialized successfully!")
 }
 ```
 
-**Expected output:**
+**Expected Output:**
 ```
-Failed to load: readTransactionFile: open transactions.json: The system cannot find the file specified.
+Full Error Chain: initialize ledger: connection timeout
+Root Cause: connection timeout
 ```
-
-The error chain: your label → OS error. This is what makes production debugging fast.
 
 ---
+
+## ✏️ Quiz 6B: Custom Errors & `errors.Is` / `errors.As`
+
+Create `sandbox/quiz6b.go`. Write a program that:
+1. Defines a custom struct error `FundError` with fields `Required KES` (float64) and `Available KES` (float64). It must implement the `Error() string` method returning `"insufficient funds: need KES X, only have KES Y"`.
+2. Defines a package constant `ErrSystemMaintenance = errors.New("system undergoing maintenance")`.
+3. Write a function `processPayment(amount float64, balance float64, maintenance bool) error`:
+   - If `maintenance` is `true`, return `ErrSystemMaintenance`.
+   - If `amount > balance`, return an instance of `*FundError`.
+   - Otherwise, return `nil`.
+4. In `main()`, call `processPayment(1000.00, 500.00, false)`. Check if it is a `*FundError` using `errors.As`. If so, print the fields.
+5. In `main()`, call `processPayment(100.00, 500.00, true)`. Check if it matches `ErrSystemMaintenance` using `errors.Is`. If so, print `"Retry transaction later"`.
+
+---
+
+## ✅ Answer — Quiz 6B
+
+```go
+package main
+
+import (
+    "errors"
+    "fmt"
+)
+
+// Custom error struct
+type FundError struct {
+    Required  float64
+    Available float64
+}
+
+// Implement the error interface
+func (e *FundError) Error() string {
+    return fmt.Sprintf("insufficient funds: need KES %.2f, only have KES %.2f", e.Required, e.Available)
+}
+
+// Standard sentinel error
+var ErrSystemMaintenance = errors.New("system undergoing maintenance")
+
+func processPayment(amount float64, balance float64, maintenance bool) error {
+    if maintenance {
+        return ErrSystemMaintenance
+    }
+    if amount > balance {
+        return &FundError{Required: amount, Available: balance}
+    }
+    return nil
+}
+
+func main() {
+    // Test Case 1: Insufficient funds
+    fmt.Println("--- Test Case 1 ---")
+    err1 := processPayment(1000.00, 500.00, false)
+    if err1 != nil {
+        var fundErr *FundError
+        if errors.As(err1, &fundErr) { // extract custom error fields
+            fmt.Println("Fund Error caught!")
+            fmt.Printf("Required: KES %.2f, Available: KES %.2f\n", fundErr.Required, fundErr.Available)
+        } else {
+            fmt.Println("Other error:", err1)
+        }
+    }
+
+    // Test Case 2: System maintenance
+    fmt.Println("\n--- Test Case 2 ---")
+    err2 := processPayment(100.00, 500.00, true)
+    if err2 != nil {
+        if errors.Is(err2, ErrSystemMaintenance) {
+            fmt.Println("Error: System is currently down for maintenance.")
+            fmt.Println("Action: Retry transaction later.")
+        } else {
+            fmt.Println("Other error:", err2)
+        }
+    }
+}
+```
+
+**Expected Output:**
+```
+--- Test Case 1 ---
+Fund Error caught!
+Required: KES 1000.00, Available: KES 500.00
+
+--- Test Case 2 ---
+Error: System is currently down for maintenance.
+Action: Retry transaction later.
+```
 
 ---
 
@@ -1169,17 +1760,17 @@ The error chain: your label → OS error. This is what makes production debuggin
 
 Answer from memory:
 
-1. What does `nil` mean when it is the value of an `error`?
-2. What does `%w` do that `%v` does not?
-3. What is the difference between file permissions `0600` and `0644`?
-4. Write the 3-line pattern for calling a function and checking its error.
-5. In `func (m *Message) AmountKES()`, what does the `*` before `Message` mean?
+1. What is the built-in `error` interface definition in Go?
+2. What formatting verb do you use to wrap an error inside another?
+3. What is the difference between `errors.Is` and `errors.As`?
+4. Why does a custom error struct implementation usually use a pointer receiver for its `Error()` method?
+5. Write the syntax to unwrap a wrapped error value `err`.
 
 ---
 
 ---
 
-# Chapter 7: Goroutines — Running Code Simultaneously
+# Chapter 7: Goroutines & Channels — Running Code Simultaneously
 
 ---
 
@@ -1197,6 +1788,54 @@ Answer from memory:
   Total: 150ms                         Gamma ────────────┘
                                        Total: ~50ms (fastest wins the deadline)
 ```
+
+---
+
+## Concurrency vs. Parallelism
+
+Many programmers confuse **concurrency** and **parallelism**:
+- **Concurrency** is about **structure**. It is the ability to write your program so that multiple tasks can start, run, and complete in overlapping time periods. Think of a single teller multitasking between two lines of customers.
+- **Parallelism** is about **execution**. It is the ability to run multiple tasks *literally* at the same physical instant, which requires multi-core processor hardware. Think of two tellers serving two customers at the same time.
+
+In Go, we launch a concurrent task by placing the `go` keyword before a function call. This starts a **Goroutine** — a lightweight thread managed by the Go runtime, not the operating system.
+
+---
+
+## Channels: The Communication Pipes
+
+If two goroutines need to talk or share data, they must **never** share memory directly (like editing the same variable), as this causes race conditions. Instead, they use a **Channel** to pass messages back and forth.
+
+```
+       ch := make(chan int) // Create a channel of integers
+
+       ch <- 42  // Send value 42 into the channel
+       val := <-ch // Receive value from the channel and save it in val
+```
+
+### Unbuffered vs. Buffered Channels
+1. **Unbuffered Channels (Default):**
+   `ch := make(chan string)`
+   A send operation blocks the sender until a receiver is ready to take the value. A receive blocks the receiver until a sender puts a value in. It acts as a synchronous handshake.
+2. **Buffered Channels:**
+   `ch := make(chan string, 3)`
+   The channel has a mailbox slot of size `3`. A sender can push up to 3 messages into the channel without blocking, even if no one is reading yet. Once the buffer is full, the sender blocks.
+
+---
+
+## The `select` Statement and timeouts
+
+The `select` statement lets a goroutine wait on multiple channel operations at the same time. It blocks until one of its cases is ready to execute:
+
+```go
+select {
+case msg := <-ch:
+    fmt.Println("Received message:", msg)
+case <-time.After(100 * time.Millisecond):
+    fmt.Println("Timed out waiting!")
+}
+```
+
+This is how the CONNEX Gateway prevents a slow or crashed witness node from blocking bank payments. We fire requests to all witnesses, wait for responses, but enforce a strict timeout using `time.After`.
 
 ---
 
@@ -1248,46 +1887,39 @@ gantt
 
 ```go
 func collectSignatures(witnesses []string, tokens []string, hashBytes []byte, timeout time.Duration) []SignatureEntry {
+	type result struct {
+		sig *SignatureEntry
+		err error
+	}
+	ch := make(chan result, len(witnesses))
+	for i, w := range witnesses {
+		w := w
+		var token string
+		if i < len(tokens) {
+			token = tokens[i]
+		}
+		go func() {
+			sig, err := requestSignature(w, token, hashBytes, timeout)
+			ch <- result{sig, err}
+		}()
+	}
 
-    // A mini-struct to hold one goroutine's result (success OR error)
-    type result struct {
-        sig *SignatureEntry
-        err error
-    }
-
-    // Create the channel — a buffered pipe for len(witnesses) results
-    ch := make(chan result, len(witnesses))
-
-    // Launch ONE goroutine per witness — all 3 start SIMULTANEOUSLY
-    for i, w := range witnesses {
-        w := w  // ← IMPORTANT: capture the loop variable for this goroutine
-        var token string
-        if i < len(tokens) {
-            token = tokens[i]
-        }
-        go func() {                                   // ← "go" = launch in background NOW
-            sig, err := requestSignature(w, token, hashBytes, timeout)
-            ch <- result{sig, err}                    // ← push result into the pipe
-        }()
-    }
-
-    var sigs []SignatureEntry
-    deadline := time.After(timeout)                   // ← countdown timer
-
-    for range witnesses {
-        select {
-        case r := <-ch:                               // ← a result arrived
-            if r.err != nil {
-                slog.Warn("witness error", "err", r.err)
-            } else {
-                sigs = append(sigs, *r.sig)
-            }
-        case <-deadline:                              // ← timer ran out
-            slog.Warn("witness timeout reached", "collected", len(sigs))
-            return sigs
-        }
-    }
-    return sigs
+	var sigs []SignatureEntry
+	deadline := time.After(timeout)
+	for range witnesses {
+		select {
+		case r := <-ch:
+			if r.err != nil {
+				slog.Warn("witness error", "err", r.err)
+			} else {
+				sigs = append(sigs, *r.sig)
+			}
+		case <-deadline:
+			slog.Warn("witness timeout reached", "collected", len(sigs))
+			return sigs
+		}
+	}
+	return sigs
 }
 ```
 
@@ -1337,19 +1969,28 @@ flowchart TD
 
 ---
 
-## ✏️ Quiz 7
+## ❓ Ask Why?
 
-Create `sandbox/quiz7.go`. Simulate 3 witnesses:
+- **Why** do we buffer the channel `ch := make(chan result, len(witnesses))` instead of leaving it unbuffered?
+- **Why** does Go warn us that launching a goroutine without variable capture (the `w := w` pattern) is a security hazard?
 
-1. `results := make(chan string, 3)`
-2. Launch 3 goroutines: sleep 1s/2s/5s, then send `"Alpha signed ✓"` / `"Beta signed ✓"` / `"Gamma signed ✓"`
-3. Loop 3 times with `select`:
-   - Receive from channel → print message, increment counter
-   - `time.After(3 * time.Second)` → print `"⏰ Timeout"`, check quorum, return
+*(Answers: 
+1. If the channel is unbuffered, and the gateway times out (executing `case <-deadline`), it returns immediately. The running background goroutines will finish later and try to send their result to `ch`, but since no one is reading anymore, they will block forever, creating a memory leak. Buffering allows the goroutines to write their results and exit cleanly.
+2. In older versions of Go, loop variables were updated in place. If three goroutines references the same loop pointer `w`, they would all read whatever value was in `w` at the time of execution — usually the final element `"gamma"`. Capturing variables ensures each goroutine gets its own local copy.)*
 
 ---
 
-## ✅ Answer — Quiz 7
+## ✏️ Quiz 7A: Buffered Channels and Goroutines
+
+Create `sandbox/quiz7a.go`. Write a program that:
+1. Creates a buffered channel of strings named `jobs` with capacity `3`.
+2. Launches a background goroutine that reads 3 strings from the channel, printing `"Processing: " + job` for each, sleep `100ms` between them.
+3. In `main()`, send three strings to the channel: `"Verify MTI"`, `"Validate Bitmap"`, and `"Hash Transaction"`.
+4. Sleep for `500ms` at the end of `main()` to allow the background goroutine to finish.
+
+---
+
+## ✅ Answer — Quiz 7A
 
 ```go
 package main
@@ -1359,43 +2000,105 @@ import (
     "time"
 )
 
-func main() {
-    results := make(chan string, 3)
-
-    go func() { time.Sleep(1 * time.Second); results <- "Alpha signed ✓" }()
-    go func() { time.Sleep(2 * time.Second); results <- "Beta signed ✓" }()
-    go func() { time.Sleep(5 * time.Second); results <- "Gamma signed ✓" }() // Too slow
-
-    collected := 0
+func worker(jobs chan string) {
     for i := 0; i < 3; i++ {
-        select {
-        case msg := <-results:
-            fmt.Println("Received:", msg)
-            collected++
-        case <-time.After(3 * time.Second):
-            fmt.Println("⏰ Timeout — witness did not respond in time")
-            if collected >= 2 {
-                fmt.Printf("✅ QUORUM_MET — %d/3 signatures collected\n", collected)
-            } else {
-                fmt.Printf("❌ QUORUM_FAILED — only %d/3 signatures\n", collected)
-            }
-            return
-        }
+        job := <-jobs // Receive job from channel
+        fmt.Println("Processing:", job)
+        time.Sleep(100 * time.Millisecond)
+    }
+}
+
+func main() {
+    jobs := make(chan string, 3) // Buffered channel
+
+    // Launch worker goroutine in background
+    go worker(jobs)
+
+    // Send jobs to channel
+    jobs <- "Verify MTI"
+    jobs <- "Validate Bitmap"
+    jobs <- "Hash Transaction"
+
+    fmt.Println("All jobs queued!")
+
+    // Sleep to let worker finish before main exits
+    time.Sleep(500 * time.Millisecond)
+}
+```
+
+**Expected Output:**
+```
+All jobs queued!
+Processing: Verify MTI
+Processing: Validate Bitmap
+Processing: Hash Transaction
+```
+
+---
+
+## ✏️ Quiz 7B: Select Statement & Timeouts
+
+Create `sandbox/quiz7b.go`. Write a program that:
+1. Creates an unbuffered channel of strings `response`.
+2. Launches a goroutine that sleeps `2` seconds and then sends `"Alpha Approved ✓"` to `response`.
+3. In `main()`, use a `select` statement to wait on the channel:
+   - If a message arrives, print it.
+   - If `1` second passes (using `time.After(1 * time.Second)`), print `"⏰ Timeout reached! Payment rejected."` and exit.
+4. Modify the timeout to `3` seconds and run again to see the success path.
+
+---
+
+## ✅ Answer — Quiz 7B
+
+```go
+package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func simulateWitness(ch chan string) {
+    time.Sleep(2 * time.Second)
+    ch <- "Alpha Approved ✓"
+}
+
+func main() {
+    response := make(chan string)
+
+    go simulateWitness(response)
+
+    // Test Case 1: Timeout shorter than response
+    fmt.Println("--- Running with 1-second timeout ---")
+    select {
+    case msg := <-response:
+        fmt.Println("Received:", msg)
+    case <-time.After(1 * time.Second):
+        fmt.Println("⏰ Timeout reached! Payment rejected.")
+    }
+
+    // Note: To run Test Case 2 cleanly, we instantiate another channel
+    response2 := make(chan string)
+    go simulateWitness(response2)
+
+    fmt.Println("\n--- Running with 3-second timeout ---")
+    select {
+    case msg := <-response2:
+        fmt.Println("Received:", msg)
+    case <-time.After(3 * time.Second):
+        fmt.Println("⏰ Timeout reached! Payment rejected.")
     }
 }
 ```
 
-**Expected output:**
+**Expected Output:**
 ```
-Received: Alpha signed ✓
-Received: Beta signed ✓
-⏰ Timeout — witness did not respond in time
-✅ QUORUM_MET — 2/3 signatures collected
+--- Running with 1-second timeout ---
+⏰ Timeout reached! Payment rejected.
+
+--- Running with 3-second timeout ---
+Received: Alpha Approved ✓
 ```
-
-This mirrors what the real CONNEX Gateway outputs when Witness Gamma is offline.
-
----
 
 ---
 
@@ -1415,7 +2118,7 @@ Answer from memory — these questions mix all 7 chapters deliberately:
 
 ---
 
-# Chapter 8: The Full Picture — A Transaction From Start to Finish
+# Chapter 8: The Full Picture — Code Walkthroughs
 
 ---
 
@@ -1461,29 +2164,194 @@ sequenceDiagram
 
 ---
 
-## The Complete CONNEX Code Map
+## Walkthrough 1: `internal/iso8583/parser.go`
 
+Let's dissect the core parser logic that reads the ISO 8583 bitmap and dynamic fields.
+
+### 1. The Bitmap Field Decoder (`bitmapBits`)
+```go
+func bitmapBits(raw []byte, offset int) []int {
+    var set []int
+    for byteIdx, b := range raw {
+        for bit := 7; bit >= 0; bit-- {
+            if (b>>uint(bit))&1 == 1 {
+                fieldNum := offset + byteIdx*8 + (7 - bit) + 1
+                set = append(set, fieldNum)
+            }
+        }
+    }
+    return set
+}
 ```
-  c:\Users\roych\OFFICIAL MVP\
-  ├── cmd\
-  │   ├── gateway\main.go     ← Chapter 1,2,3,4,5,6,7 all used here
-  │   └── witness\main.go     ← Chapter 1,2,3,4,5,6 used here
-  │
-  ├── internal\
-  │   ├── iso8583\parser.go   ← Chapter 3 (Message struct), 5 (AmountKES method)
-  │   ├── iso20022\           ← Chapter 4 (Assemble function)
-  │   ├── enrichment\         ← Chapter 3 (Input/Result structs), 4 (Enrich function)
-  │   └── storage\            ← Chapter 3 (Event struct), 5 (DB methods)
-  │
-  └── docs\
-      └── GO_COURSE.md        ← You are here
-```
+**Line-by-Line Annotation:**
+- `raw []byte`: 8 bytes of bitmap data (representing fields 1–64 or 65–128).
+- `offset int`: 0 for primary bitmap, 64 for secondary bitmap.
+- `for byteIdx, b := range raw`: Loops through all 8 bytes of the bitmap.
+- `for bit := 7; bit >= 0; bit--`: Loops through each bit of the current byte from left (most significant) to right.
+- `b>>uint(bit)`: Bitwise shifts the byte `b` to the right by `bit` positions, moving the target bit to the least significant position.
+- `&1 == 1`: Bitwise ANDs with `1` to isolate the target bit. If the result is `1`, that field number is present!
+- `fieldNum := offset + byteIdx*8 + (7 - bit) + 1`: Math to map the current bit position to the actual ISO field number.
+- `set = append(set, fieldNum)`: Adds the field number to our list.
 
 ---
 
-## Now Read The Real Code
+### 2. Variable-Length Field Parsing (LLVAR / LLLVAR)
+Let's see how the parser decodes ASCII variable-length data fields (like a bank account card number in field 2):
+```go
+lenStr := string(raw[pos : pos+2])
+dataLen, err := strconv.Atoi(lenStr)
+if err != nil {
+    return nil, fmt.Errorf("F%d (%s): invalid LLVAR length %q", fieldNum, def.Name, lenStr)
+}
+pos += 2
+if dataLen > def.Length {
+    return nil, fmt.Errorf("F%d (%s): LLVAR length %d exceeds max %d", fieldNum, def.Name, dataLen, def.Length)
+}
+msg.Fields[fieldNum] = string(raw[pos : pos+dataLen])
+pos += dataLen
+```
+**Line-by-Line Annotation:**
+- `string(raw[pos : pos+2])`: Slices the next 2 bytes of the message stream and converts them to string (e.g. `"16"`). This represents the length of the account card number.
+- `strconv.Atoi(lenStr)`: Parses `"16"` into the integer `16`.
+- `pos += 2`: Advances the stream pointer past the 2-digit length prefix.
+- `dataLen > def.Length`: Security validation. Verifies the length doesn't exceed the database schema boundaries.
+- `string(raw[pos : pos+dataLen])`: Extracts the card number bytes and stores them as a string value inside our `msg.Fields` map.
+- `pos += dataLen`: Advances the stream pointer past the actual data fields.
 
-Open `cmd/gateway/main.go`. Find `handleCoordinate()` at line 148. It has **12 numbered steps** in the comments. For each step, identify which chapter from this course that code comes from.
+---
+
+## Walkthrough 2: `cmd/witness/main.go`
+
+The witness node generates private keys, restricts file system access, and binds timestamps to prevent signature replay attacks.
+
+### 1. Key Generation and Secure File Permissions
+```go
+if err := os.WriteFile(privPath, priv, 0600); err != nil {
+    return nil, nil, fmt.Errorf("write private key: %w", err)
+}
+if err := os.WriteFile(pubPath, pub, 0644); err != nil {
+    return nil, nil, fmt.Errorf("write public key: %w", err)
+}
+```
+**Line-by-Line Annotation:**
+- `os.WriteFile(...)`: Atomically creates or overwrites the file on disk.
+- `privPath`: The target file location (e.g., `"keys/witness.key"`).
+- `0600`: Standard POSIX file permissions. Only the operating system user running the process can read and write the private key. Everyone else is denied.
+- `0644`: Public key permissions. Public keys are designed to be shared, so this enables others to read the public key while allowing only the owner to write/modify it.
+- `fmt.Errorf("write private key: %w", err)`: Error wrapping to bubble the exact file system failure up to the startup logger.
+
+---
+
+### 2. Temporal Cryptographic Binding (`handleSign`)
+```go
+timestamp := time.Now().UTC().Format(time.RFC3339Nano)
+
+h := sha256.New()
+h.Write(hashBytes)
+h.Write([]byte(timestamp))
+witnessHash := h.Sum(nil)
+
+sig := ed25519.Sign(w.priv, witnessHash)
+```
+**Line-by-Line Annotation:**
+- `time.Now().UTC().Format(time.RFC3339Nano)`: Generates a high-precision UTC timestamp string.
+- `sha256.New()`: Initializes a SHA-256 hash calculator.
+- `h.Write(hashBytes)`: Feeds the 32-byte transaction coordination hash into the hash calculator.
+- `h.Write([]byte(timestamp))`: Feeds the timestamp string into the hash calculator.
+- `h.Sum(nil)`: Seals the hash calculator, computing `witnessHash = SHA-256(H_coord || timestamp_bytes)`.
+- `ed25519.Sign(w.priv, witnessHash)`: Signs the combined hash using the private key. 
+- *Why bind time?* If a hacker intercepts the signature, they cannot reuse it for another transaction later, because the signature is mathematically bound to a specific millisecond timestamp.
+
+---
+
+## Walkthrough 3: `cmd/gateway/main.go`
+
+The gateway controls the sequence of transaction chaining and executes parallel network calls to gather witness signatures.
+
+### 1. Coordination Sequence Lock
+```go
+g.mu.Lock()
+defer g.mu.Unlock()
+
+prevHash, err := g.db.LatestChainHash()
+```
+**Line-by-Line Annotation:**
+- `g.mu.Lock()`: Acquires a mutual exclusion lock (**Mutex**). If another web request is currently executing a payment, this thread blocks and waits.
+- `defer g.mu.Unlock()`: Ensures the mutex is released when this function exits (even if the transaction fails midway).
+- `g.db.LatestChainHash()`: Reads the hash of the last successfully processed transaction.
+- *Why is a lock necessary?* To maintain an unbroken hash chain. If two transactions are processed simultaneously without a mutex, they might read the same `prevHash`, generating a fork in our transaction chain.
+
+---
+
+### 2. Parallel Signature Gathering (`collectSignatures`)
+```go
+ch := make(chan result, len(witnesses))
+for i, w := range witnesses {
+    w := w
+    var token string
+    if i < len(tokens) {
+        token = tokens[i]
+    }
+    go func() {
+        sig, err := requestSignature(w, token, hashBytes, timeout)
+        ch <- result{sig, err}
+    }()
+}
+```
+**Line-by-Line Annotation:**
+- `ch := make(chan result, len(witnesses))`: Creates a buffered channel that holds `len(witnesses)` result structs, preventing goroutines from blocking.
+- `for i, w := range witnesses`: Iterates over the addresses of our three witness servers.
+- `w := w`: Local variable capture. Creates a copy of `w` inside the loop scope so the goroutine doesn't reference a moving loop pointer.
+- `go func() { ... }()`: Spawns an anonymous background goroutine immediately.
+- `requestSignature(...)`: Executes a POST network request to the witness.
+- `ch <- result{sig, err}`: Pushes the network response (or error) into our channel mailbox.
+
+---
+
+## Walkthrough 4: `internal/storage/db.go`
+
+The database interface manages SQL commands and handles high-concurrency settings to guarantee ledger write integrity.
+
+### 1. WAL Mode & Busy Timeout Configurations
+```go
+conn, err := sql.Open("sqlite", path+"?_journal=WAL&_busy_timeout=5000")
+```
+**Line-by-Line Annotation:**
+- `sql.Open("sqlite", ...)`: Initializes the database driver connection pool.
+- `_journal=WAL`: Enables **Write-Ahead Logging** (WAL). This permits multiple read operations to occur simultaneously while a write operation is running, preventing database contention.
+- `_busy_timeout=5000`: Set to 5000 milliseconds. If the database is temporarily locked by another process, wait up to 5 seconds before returning a lock error to the application.
+
+---
+
+### 2. Inserting Transaction Records
+```go
+_, err := db.conn.Exec(`
+    INSERT INTO coordination_events
+      (bundle_id, timestamp, original_hash, enriched_hash, chain_hash,
+       prev_chain_hash, bundle_json, enriched_xml, enrichment_log, quorum_status)
+    VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)`,
+    e.BundleID,
+    e.Timestamp.UTC().Format(time.RFC3339Nano),
+    e.OriginalHash,
+    e.EnrichedHash,
+    e.ChainHash,
+    e.PrevChainHash,
+    e.BundleJSON,
+    e.EnrichedXML,
+    e.EnrichmentLog,
+    e.QuorumStatus,
+)
+```
+**Line-by-Line Annotation:**
+- `db.conn.Exec(...)`: Runs the SQL query directly.
+- `?`: SQL parameter placeholders. These prevent **SQL Injection** security vulnerabilities. Go's driver handles escaping the input data safely.
+- `e.Timestamp.UTC().Format(...)`: Converts the timestamp to UTC and formats it with nano-precision before storing it in the database.
+
+---
+
+## ✏️ Chapter 8 Final Challenge: Gateway Code Mapping
+
+Open `cmd/gateway/main.go`. Find `handleCoordinate()` at line 148. It has **12 numbered steps** in the comments. For each step, identify which chapter from this course that code concept comes from.
 
 ```
   Step 1:  Read and decode base64 body         → Chapter ___
@@ -1493,14 +2361,12 @@ Open `cmd/gateway/main.go`. Find `handleCoordinate()` at line 148. It has **12 n
   Step 5:  Compute hashes                       → Chapter ___
   Step 6:  Lock coordination (sync.Mutex)       → Chapter ___
   Step 7:  Compute coordination hash            → Chapter ___
-  Step 8:  Collect witness signatures           → Chapter ___ ← this is Chapter 7!
+  Step 8:  Collect witness signatures           → Chapter ___
   Step 9:  Build enrichment log JSON            → Chapter ___
   Step 10: Assemble proof bundle               → Chapter ___
   Step 11: Write to SQLite                      → Chapter ___
   Step 12: Return bundle JSON                   → Chapter ___
 ```
-
-When you can fill in all 12 blanks, you are ready to contribute to CONNEX.
 
 ---
 
@@ -1514,9 +2380,12 @@ When you can fill in all 12 blanks, you are ready to contribute to CONNEX.
   │  Day 5  │  Re-do Quizzes 1–3 from memory (spaced repetition)    │
   │  Day 6  │  Chapters 6–7, Quizzes 6–7, Review Checkpoint 3       │
   │  Day 7  │  Chapter 8 Final Challenge + Review Checkpoint 4       │
-  │  Day 10 │  Re-do ALL 7 quizzes from memory                       │
+  │  Day 10 │  Re-do ALL quizzes from memory                         │
   │  Day 14 │  Read cmd/gateway/main.go top to bottom, annotate it  │
   └─────────┴────────────────────────────────────────────────────────┘
 
   Research finding: 1 focused hour per day beats 7 hours in one sitting.
 ```
+
+🏆 **Congratulations! You have completed the CONNEX Go Programming Course. You are now ready to write and review production code for the coordination engine!**
+
