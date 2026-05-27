@@ -7,110 +7,135 @@
 ---
 
 # Go Programming: Learn by Reading CONNEX
-### A Complete Beginner's Course — Built From the Real Codebase
-
-> Every concept you learn here is taken directly from the real CONNEX banking system source code. By the end, you will open any Go file in this project and understand every single line.
+### A Beginner's Course Built From the Real Banking System
 
 ---
 
-## How This Course Works
+## 🧠 How This Course Was Built — The Science of Learning Faster
 
-Each chapter follows this pattern:
+Before you read a single line of code, you need to know **why** this course is structured the way it is. Every section follows techniques proven by cognitive science research to make learning stick faster and longer.
 
-1. 📖 **Plain English Explanation** — The concept explained like you are 10 years old
-2. 🔍 **The Real Code** — Actual lines from CONNEX with a word-by-word breakdown
-3. ✏️ **Your Quiz** — A challenge for you to try on your own first
-4. ✅ **The Answer** — The full, correct solution with explanations
+| Technique | What It Means | Where You Will See It |
+|-----------|--------------|----------------------|
+| **Active Recall** | Force your brain to retrieve information instead of just re-reading it | Every Quiz asks you to write from memory before seeing the answer |
+| **Spaced Repetition** | Revisit old concepts at regular intervals so they don't fade | The "Review Checkpoint" sections that appear after every 2 chapters |
+| **Interleaving** | Mix different concepts in practice instead of drilling one thing | Later quizzes combine concepts from multiple chapters |
+| **Feynman Technique** | If you can explain it simply, you truly understand it | Every chapter ends with a "Teach It Back" prompt |
+| **Elaborative Interrogation** | Ask "Why?" and "How?" — not just "What?" | Every real code section ends with "Why did they write it this way?" |
+| **Concrete Examples First** | Analogies before definitions | Every concept starts with a real-world analogy before the code |
+| **Chunking** | Break complex ideas into small, digestible pieces | One concept per section, never more |
+| **Immediate Practice** | Apply within minutes of learning | Every section has a hands-on exercise immediately after it |
 
-> ⚠️ **Safety Rule:** Create a folder on your Desktop called `sandbox/`. Do ALL your practice there. Never edit files inside `cmd/` or `internal/`. You cannot break the banking system from your sandbox.
+> ⚠️ **Safety Rule:** Create a folder called `sandbox/` on your Desktop. ALL your practice goes in there. Never edit files inside `cmd/` or `internal/`. You cannot break the bank from your sandbox.
 
 ---
 
-## Before You Start: Setting Up Your Sandbox
+## Before You Start: 5-Minute Setup
 
-Open PowerShell and run these two commands:
+Open PowerShell and run these commands:
 
 ```powershell
 mkdir $HOME\Desktop\sandbox
 cd $HOME\Desktop\sandbox
-```
-
-Then verify Go is installed:
-
-```powershell
 go version
 ```
 
-You should see something like `go version go1.22.0 windows/amd64`. If not, download Go from https://go.dev/dl/ first.
+If `go version` shows a version number, you are ready. If not, download Go from **https://go.dev/dl/** and install it first.
 
 ---
 
 ---
 
-# Chapter 1: The Starting Line
-
-## `package` and `import` — Declaring and Borrowing
+# Chapter 1: Packages and Imports
 
 ---
 
-### 📖 Plain English
+## 📖 The Analogy First
 
-Before you cook a meal, you declare what kitchen you are in (`package main`) and you gather your ingredients from the pantry (`import`).
+Imagine you are a chef opening a restaurant kitchen for the day. Before you cook anything you do two things:
 
-- **`package main`** tells Go: *"This file is a complete program that can be turned on and run."*
-- **`import`** tells Go: *"Before I start, I need to borrow these toolboxes from Go's standard library."*
+1. You declare **which kitchen this is** — "This is the main kitchen, not just a prep room."
+2. You gather your **tools from the supply room** — knives, pots, measuring cups.
 
-Go comes with hundreds of free built-in toolboxes. You just have to name which ones you need. You only pay for what you use — if you import a toolbox and never use it, Go will refuse to compile and tell you to remove it.
+In Go:
+- `package main` = "This is the main kitchen — a runnable program."
+- `import (...)` = "These are the toolboxes I need from the supply room."
 
 ---
 
-### 🔍 The Real Code — `cmd/witness/main.go` Lines 11–27
+## 🔍 Real Code: `cmd/witness/main.go` — Lines 11 to 27
 
-This is the very top of the Witness Node — the program that signs bank transactions:
+This is the very first thing written in the Witness Node — the program that cryptographically signs every bank transaction:
 
 ```go
-package main          // "This is a runnable program, not just a library"
+package main
 
 import (
-    "crypto/ed25519"  // Toolbox: Ed25519 cryptographic signatures
-    "crypto/rand"     // Toolbox: Cryptographically secure random bytes
-    "crypto/sha256"   // Toolbox: SHA-256 hashing algorithm
-    "encoding/base64" // Toolbox: Convert binary bytes to readable Base64 text
-    "encoding/hex"    // Toolbox: Convert binary bytes to readable hex strings
-    "encoding/json"   // Toolbox: Read and write JSON data
-    "flag"            // Toolbox: Read arguments from the command line
-    "fmt"             // Toolbox: Format and print text ("format")
-    "log/slog"        // Toolbox: Structured logging with key-value pairs
-    "net/http"        // Toolbox: Build web servers and make HTTP requests
-    "os"              // Toolbox: Read/write files and interact with the OS
-    "path/filepath"   // Toolbox: Work with file paths safely on any OS
-    "time"            // Toolbox: Dates, clocks, timers, sleeping
+    "crypto/ed25519"   // 🔑 Ed25519 cryptographic signature toolbox
+    "crypto/rand"      // 🎲 Secure random number generator
+    "crypto/sha256"    // 🔒 SHA-256 hashing toolbox
+    "encoding/base64"  // 📝 Convert binary bytes → readable Base64 text
+    "encoding/hex"     // 🖊️  Convert binary bytes → hex strings like "3f8a1c"
+    "encoding/json"    // 📋 Read and write JSON data
+    "flag"             // 🚩 Read arguments from the command line
+    "fmt"              // 🖨️  Format and print text to the screen
+    "log/slog"         // 📓 Structured log messages with key=value pairs
+    "net/http"         // 🌐 Build web servers and make HTTP requests
+    "os"               // 💾 Read/write files and talk to the operating system
+    "path/filepath"    // 📁 Work with file paths safely
+    "time"             // ⏰ Dates, clocks, timers, durations
 )
 ```
 
-**Key things to notice:**
-- The `/` inside import paths is NOT division. It is a folder separator. `"crypto/sha256"` means the `sha256` package inside Go's built-in `crypto` folder.
-- The parentheses `( )` let you list many imports at once. Without them you would need to write `import "fmt"` on a separate line for each one.
-- Every import is in double quotes `""`.
+**Line by line breakdown:**
+
+| Line | What it means |
+|------|--------------|
+| `package main` | "This file belongs to the `main` package — Go knows it is a complete, runnable program" |
+| `import (` | "I am about to list the toolboxes I need" |
+| `"crypto/ed25519"` | The `/` is a path separator, not division. This is the `ed25519` package inside Go's `crypto` folder |
+| `"fmt"` | Short for "format" — this is the most common toolbox for printing text |
+| `)` | End of the import list |
+
+**Why did they import SO many toolboxes?**
+Because a Witness Node does many complex jobs: it reads files from disk (`os`), serves a web API (`net/http`), handles cryptography (`crypto/*`), logs messages (`log/slog`), and reads startup settings (`flag`). Each toolbox handles one specific job.
 
 ---
 
-### ✏️ Quiz 1
+## 🧠 Feynman Check — Teach It Back
 
-**Task:** In your `sandbox/` folder, create a file called `quiz1.go`.
+Close this document. Open a notepad. Write in your own words, as if explaining to a 10-year-old:
+
+> *"What does `package main` mean, and why do we have to import toolboxes?"*
+
+If you can write two sentences that make sense, you understand it. If you struggle, re-read the analogy above.
+
+---
+
+## ❓ Elaborative Interrogation — Ask "Why?"
+
+- **Why** does Go force you to list every import you need instead of just giving you everything automatically?
+- **Why** would it be a problem if you imported a toolbox and never used it?
+
+*(Answer: Go refuses to compile if you import something unused. This forces clean, intentional code — especially important in a banking system where every dependency is a potential security risk.)*
+
+---
+
+## ✏️ Quiz 1
+
+**Create:** `sandbox/quiz1.go`
 
 Write a program that:
 1. Declares `package main`
-2. Imports only the `fmt` and `time` toolboxes
-3. Has a `main()` function (every runnable Go program must have one)
-4. Inside `main()`, prints: `"CONNEX Witness Node — Online"`
-5. On the next line, prints the current date and time
+2. Imports only `fmt` and `time`
+3. Inside `main()`, prints: `"CONNEX Witness — Online"`
+4. On the next line, prints the current time
 
-**Run it from your sandbox folder with:** `go run quiz1.go`
+**Run it:** `go run quiz1.go`
 
 ---
 
-### ✅ Answer — Quiz 1
+## ✅ Answer — Quiz 1
 
 ```go
 package main
@@ -121,120 +146,138 @@ import (
 )
 
 func main() {
-    fmt.Println("CONNEX Witness Node — Online")
+    fmt.Println("CONNEX Witness — Online")
     fmt.Println("Current time:", time.Now())
 }
 ```
 
-**What each line does:**
-- `fmt.Println(...)` — The `Println` function from the `fmt` toolbox prints text and automatically adds a new line at the end.
-- `time.Now()` — Calls the `Now()` function from the `time` toolbox. It returns a `Time` object representing this exact moment.
-- `Println` is smart enough to convert the `Time` object to a human-readable string automatically.
-
 **Expected output:**
 ```
-CONNEX Witness Node — Online
-Current time: 2026-05-27 18:31:00.123456789 +0300 EAT m=+0.001234567
+CONNEX Witness — Online
+Current time: 2026-05-27 18:31:00.123456789 +0300 EAT
 ```
 
----
+**Common mistake:** Writing `import "fmt"` and `import "time"` on two separate lines — this works but is not idiomatic Go. Always use the parenthesis block when importing more than one package.
 
 ---
 
-# Chapter 2: Storing Data
+---
 
-## Variables — Labeled Boxes in Memory
+# Chapter 2: Variables — Storing Data
 
 ---
 
-### 📖 Plain English
+## 📖 The Analogy First
 
-A **variable** is a labeled box that holds a piece of data in the computer's memory. When you create a variable, you are telling the computer: *"Reserve a small space in memory, call it `amount`, and put the number 5000 in it."*
+A **variable** is a labeled box in your computer's RAM (temporary memory). You put a value in the box, give the box a name, and then refer to it by name whenever you need the value.
 
-In Go there are two ways to create variables:
+Think of it like Post-it notes on your desk:
+- You write `amount = 5000` on a yellow Post-it
+- Later, you look at the yellow Post-it whenever you need to know the amount
+- You can erase it and write a new value anytime
 
-**Method 1 — Short declaration (most common):**
-```go
-amount := 5000
-```
-The `:=` operator creates the box AND fills it at the same time. Go automatically figures out the type.
-
-**Method 2 — Explicit declaration:**
-```go
-var amount int = 5000
-```
-Here you explicitly tell Go it is an `int` (integer = whole number).
-
-**The main data types you will see in CONNEX:**
-
-| Type | What it holds | Example |
-|------|--------------|---------|
-| `string` | Text | `"Alice"` |
-| `int` | Whole numbers | `42` |
-| `float64` | Decimal numbers | `98750.50` |
-| `bool` | True or false | `true` |
-| `[]byte` | Raw binary data | `[]byte{0x02, 0x00}` |
-| `error` | An error message or `nil` | `nil` means "no error" |
+When your program ends, all the Post-its (variables) are thrown away.
 
 ---
 
-### 🔍 The Real Code — `cmd/witness/main.go` Lines 34–35
+## 🔍 Real Code: `cmd/witness/main.go` — Lines 34–35
 
 ```go
-privPath := keyPath          // Create box "privPath", copy keyPath's value into it
-pubPath  := keyPath + ".pub" // Create box "pubPath", same value but with ".pub" glued on
+privPath := keyPath          // Create box named "privPath", fill it with keyPath's value
+pubPath  := keyPath + ".pub" // Create box named "pubPath", same value but ".pub" glued on
 ```
 
-If `keyPath` is `"keys/witness.key"`, then after these two lines:
-- `privPath` = `"keys/witness.key"`
-- `pubPath`  = `"keys/witness.key.pub"`
+**The `:=` operator does two things at once:** creates the box AND puts a value in it.
 
-The `+` operator on strings glues them together (this is called **concatenation**).
+If `keyPath` was `"keys/witness.key"`, then after these lines:
+- `privPath` holds: `"keys/witness.key"`
+- `pubPath` holds: `"keys/witness.key.pub"`
+
+The `+` on strings glues them together — this is called **concatenation**.
 
 ---
 
-### 🔍 The Real Code — `cmd/gateway/main.go` Line 198
+## 🔍 Real Code: `cmd/gateway/main.go` — Line 198
 
 ```go
 bundleID := fmt.Sprintf("CX-%s-%x", time.Now().UTC().Format("20060102150405.000000"), randBytes)
 ```
 
-This creates a unique ID for every single bank transaction. Let's break it apart piece by piece:
+This one line creates the unique ID for every bank transaction. Let's unwrap it piece by piece:
 
-| Piece | Meaning |
-|-------|---------|
-| `bundleID :=` | Create a new variable called `bundleID` |
-| `fmt.Sprintf(...)` | Build a string from a template (like filling in blanks) |
-| `"CX-%s-%x"` | The template: `CX-` then a string `%s` then `-` then hex bytes `%x` |
-| `time.Now().UTC()` | Get the current time in UTC timezone |
-| `.Format("20060102150405.000000")` | Format the time as `YYYYMMDDHHmmss.microseconds` |
-| `randBytes` | 4 random bytes that get converted to hex by `%x` |
+```
+"CX-%s-%x"
+  │    │  └── %x = insert these bytes as a hex string
+  │    └────── %s = insert a string here  
+  └─────────── "CX-" = a fixed prefix for all CONNEX bundle IDs
 
-A finished bundle ID looks like: `CX-20260522150405.000000-3f8a1c2b`
+time.Now().UTC()                    → current time in UTC
+  .Format("20060102150405.000000") → formatted as: 20260522150405.000000
+
+randBytes                           → 4 random bytes, shown as hex like "3f8a1c2b"
+```
+
+A finished bundle ID looks like: **`CX-20260522150405.000000-3f8a1c2b`**
+
+Every single transaction in history will have a different ID because the time and random bytes together make it unique.
 
 ---
 
-### ✏️ Quiz 2
+## 📊 Data Types in CONNEX — The Complete Reference Table
 
-**Task:** Create `sandbox/quiz2.go`.
-
-Write a program that:
-1. Creates a `string` variable called `bankName` containing `"Central Bank of Kenya"`
-2. Creates an `int` variable called `transactionCount` containing `1247`
-3. Creates a `float64` variable called `totalAmountKES` containing `98750.50`
-4. Creates a `bool` variable called `systemOnline` set to `true`
-5. Prints them all in a single formatted sentence using `fmt.Printf`
-
-The output should look exactly like:
-```
-Bank: Central Bank of Kenya | Transactions: 1247 | Total: 98750.50 KES | Online: true
-```
-
-**Hint:** `fmt.Printf` uses `%s` for strings, `%d` for integers, `%.2f` for floats with 2 decimal places, and `%v` for booleans.
+| Type | Holds | Real CONNEX Example |
+|------|-------|---------------------|
+| `string` | Text | `"QUORUM_MET"`, `"keys/witness.key"` |
+| `int` | Whole number | `8091` (port number) |
+| `float64` | Decimal number | `1000.00` (KES amount) |
+| `bool` | True or false | `true` when quorum is achieved |
+| `[]byte` | Raw binary bytes | The SHA-256 hash bytes before hex encoding |
+| `error` | An error or `nil` | `nil` = no error; anything else = problem |
+| `time.Duration` | A length of time | `150 * time.Millisecond` (the witness timeout) |
 
 ---
 
-### ✅ Answer — Quiz 2
+## 🧠 Feynman Check — Teach It Back
+
+Without looking above, explain to yourself:
+
+> *"What does `:=` do? What is the difference between `string`, `int`, and `float64`? When would you use each one in a banking system?"*
+
+---
+
+## ❓ Elaborative Interrogation — Ask "Why?"
+
+- **Why** does CONNEX store the transaction amount as `float64` and not `int`?
+- **Why** does CONNEX format the time as `"20060102150405"` — why those specific numbers?
+
+*(Answer to #2: Go uses a specific reference date — January 2, 2006, 15:04:05 — as its time template. The digits 1-2-3-4-5-6 spell out the order of time components: month=1, day=2, hour=3, minute=4, second=5, year=6.)*
+
+---
+
+## ✏️ Quiz 2
+
+**Create:** `sandbox/quiz2.go`
+
+Write a program that creates these five variables and prints them in a formatted sentence:
+
+| Variable | Type | Value |
+|----------|------|-------|
+| `bankName` | `string` | `"Central Bank of Kenya"` |
+| `transactionCount` | `int` | `1247` |
+| `totalAmountKES` | `float64` | `98750.50` |
+| `systemOnline` | `bool` | `true` |
+| `witnessPort` | `int` | `8091` |
+
+**Required output:**
+```
+Bank: Central Bank of Kenya | Transactions: 1247 | Total: KES 98750.50 | Port: 8091 | Online: true
+```
+
+**Hint:** Use `fmt.Printf` with `%s`, `%d`, `%.2f`, `%v` as the format verbs.
+
+---
+
+## ✅ Answer — Quiz 2
 
 ```go
 package main
@@ -246,54 +289,70 @@ func main() {
     transactionCount := 1247
     totalAmountKES   := 98750.50
     systemOnline     := true
+    witnessPort      := 8091
 
-    fmt.Printf("Bank: %s | Transactions: %d | Total: %.2f KES | Online: %v\n",
-        bankName, transactionCount, totalAmountKES, systemOnline)
+    fmt.Printf("Bank: %s | Transactions: %d | Total: KES %.2f | Port: %d | Online: %v\n",
+        bankName, transactionCount, totalAmountKES, witnessPort, systemOnline)
 }
 ```
 
-**What each format verb means:**
-- `%s` → insert a string
-- `%d` → insert an integer (decimal number)
-- `%.2f` → insert a float, rounded to 2 decimal places
-- `%v` → insert any value using its default format (works for bool, slices, structs)
-- `\n` → a newline character (goes to the next line)
+**Format verb cheat sheet:**
 
-**Expected output:**
-```
-Bank: Central Bank of Kenya | Transactions: 1247 | Total: 98750.50 KES | Online: true
-```
+| Verb | Use for | Example output |
+|------|---------|---------------|
+| `%s` | strings | `Central Bank of Kenya` |
+| `%d` | integers | `1247` |
+| `%.2f` | floats (2 decimal places) | `98750.50` |
+| `%v` | anything (default format) | `true` |
+| `\n` | new line | moves cursor to next line |
 
 ---
 
 ---
 
-# Chapter 3: Grouping Data
+## 🔄 Review Checkpoint 1 — Spaced Repetition
 
-## Structs — Custom Data Blueprints
+Before moving to Chapter 3, answer these from memory (no peeking):
 
----
+1. What does `package main` tell Go?
+2. What does `:=` do that `=` cannot?
+3. What data type would you use to store a bank transaction amount?
+4. Name three toolboxes imported in the CONNEX Witness Node and what each does.
 
-### 📖 Plain English
-
-A single bank transaction is not just one value. It has many pieces: an ID, an amount, a receiver, a timestamp, and signatures. In Go, we group related data together into a **struct** (short for "structure").
-
-Think of a struct like a form with labeled fields. Once you define the form (the `type`), you can fill it out many times to create many instances.
-
-```
-BANK TRANSACTION FORM
-─────────────────────
-ID:           [ TX-001      ]
-Amount:       [ 5000.00 KES ]
-ReceiverBank: [ Equity Bank ]
-IsApproved:   [ true        ]
-```
-
-In Go code, that form is defined once and reused endlessly.
+*(Check your answers against Chapters 1 and 2 above.)*
 
 ---
 
-### 🔍 The Real Code — `cmd/gateway/main.go` Lines 41–51
+---
+
+# Chapter 3: Structs — Grouping Related Data
+
+---
+
+## 📖 The Analogy First
+
+A single bank transaction is never just one value. It has a unique ID, an amount, a sender, a receiver, a time, and cryptographic signatures. Storing all of these in separate variables would be chaos.
+
+A **struct** is like a custom form with labeled fields. You design the form once, then fill it out once per transaction. Every transaction gets its own filled form.
+
+```
+┌─────────────────────────────────────┐
+│  CONNEX TRANSACTION PROOF BUNDLE   │
+├─────────────────────────────────────┤
+│  Bundle ID:     CX-20260522-3f8a   │
+│  Timestamp:     2026-05-22T15:04Z  │
+│  Original Hash: d503ffab67cf2bdb…  │
+│  Enriched Hash: 94c2367ab6be1b8b…  │
+│  Quorum Status: QUORUM_MET         │
+│  Signatures:    [Alpha, Beta]       │
+└─────────────────────────────────────┘
+```
+
+That form, in Go, is called a `Bundle` struct.
+
+---
+
+## 🔍 Real Code: `cmd/gateway/main.go` — Lines 41–51
 
 ```go
 type Bundle struct {
@@ -309,17 +368,17 @@ type Bundle struct {
 }
 ```
 
-**Word-by-word breakdown:**
+**Anatomy of one field:**
 
-| Part | Meaning |
-|------|---------|
-| `type Bundle struct` | Define a new custom type called `Bundle`. Its shape follows. |
-| `BundleID string` | A field called `BundleID` that holds text |
-| `` `json:"bundle_id"` `` | A **struct tag**: tells the JSON toolbox to call this field `bundle_id` (not `BundleID`) in the output |
-| `[]SignatureEntry` | A **slice** (list) of `SignatureEntry` items. The `[]` means "zero or more of these" |
-| `json.RawMessage` | A special type that holds raw JSON without parsing it |
+```
+    BundleID      string          `json:"bundle_id"`
+    ────────      ──────          ─────────────────
+    Field name    Data type       Struct tag: tells json.Marshal to
+    (Go uses it)  (string = text) use "bundle_id" in the JSON output
+                                  instead of "BundleID"
+```
 
-**To fill out (instantiate) a Bundle:**
+**To create a Bundle:**
 ```go
 myBundle := Bundle{
     BundleID:     "CX-20260522-3f8a",
@@ -330,48 +389,58 @@ myBundle := Bundle{
 
 **To read a specific field, use a dot `.`:**
 ```go
-fmt.Println(myBundle.BundleID)     // prints: CX-20260522-3f8a
-fmt.Println(myBundle.QuorumStatus) // prints: QUORUM_MET
+fmt.Println(myBundle.BundleID)      // → CX-20260522-3f8a
+fmt.Println(myBundle.QuorumStatus)  // → QUORUM_MET
 ```
 
 ---
 
-### 🔍 The Real Code — `cmd/witness/main.go` Lines 74–80
+## 🔍 Real Code: `cmd/witness/main.go` — Lines 74–80
 
 ```go
 type witness struct {
-    priv        ed25519.PrivateKey // The secret key — never shared
-    pub         ed25519.PublicKey  // The public key — shared with the gateway
-    fp          string             // Short fingerprint (first 16 chars of SHA-256)
-    witnessName string             // "alpha", "beta", or "gamma"
-    token       string             // Bearer token for authentication
+    priv        ed25519.PrivateKey  // Secret signing key — NEVER sent outside
+    pub         ed25519.PublicKey   // Public key — shared with the gateway
+    fp          string              // First 16 hex chars of SHA-256(pub)
+    witnessName string              // "alpha", "beta", or "gamma"
+    token       string              // Bearer token for authentication
 }
 ```
 
-Notice the field names are **lowercase** (`priv`, `pub`, `fp`). In Go, lowercase means the field is **private** — it cannot be accessed from outside this package. This is intentional security design: the private key should never be exposed to outside code.
+Notice the field names are **lowercase** (`priv`, `pub`). In Go, a lowercase field name is **private** — code outside this package cannot access it. This is intentional security: the private key can never leak out of the `witness` package.
 
 ---
 
-### ✏️ Quiz 3
+## ❓ Elaborative Interrogation — Ask "Why?"
 
-**Task:** Create `sandbox/quiz3.go`.
+- **Why** does `Signatures` use the type `[]SignatureEntry` and not just `string`?
+- **Why** does the `Bundle` struct use struct tags to rename fields for JSON?
+- **Why** are the `witness` struct fields lowercase while `Bundle` struct fields are uppercase?
 
-1. Define a struct called `BankTransaction` with these fields and JSON tags:
+*(Answer to #3: Uppercase = exported = accessible from outside the package. Lowercase = unexported = private to the package. The `Bundle` is shared across the whole system, so its fields must be public. The `witness`'s private key must stay private.)*
 
-| Field Name | Type | JSON Tag |
-|------------|------|----------|
+---
+
+## ✏️ Quiz 3
+
+**Create:** `sandbox/quiz3.go`
+
+1. Define a struct called `BankTransaction` with these fields:
+
+| Go Field Name | Type | JSON Tag |
+|---------------|------|----------|
 | `ID` | `string` | `"id"` |
 | `SenderBank` | `string` | `"sender_bank"` |
 | `ReceiverBank` | `string` | `"receiver_bank"` |
 | `AmountKES` | `float64` | `"amount_kes"` |
 | `IsApproved` | `bool` | `"is_approved"` |
 
-2. In `main()`, create a `BankTransaction` and fill in all fields with realistic values.
-3. Use `json.Marshal` to convert it to JSON bytes, then print the JSON string.
+2. In `main()`, create one transaction with realistic values.
+3. Convert it to JSON with `json.Marshal` and print the result.
 
 ---
 
-### ✅ Answer — Quiz 3
+## ✅ Answer — Quiz 3
 
 ```go
 package main
@@ -382,11 +451,11 @@ import (
 )
 
 type BankTransaction struct {
-    ID            string  `json:"id"`
-    SenderBank    string  `json:"sender_bank"`
-    ReceiverBank  string  `json:"receiver_bank"`
-    AmountKES     float64 `json:"amount_kes"`
-    IsApproved    bool    `json:"is_approved"`
+    ID           string  `json:"id"`
+    SenderBank   string  `json:"sender_bank"`
+    ReceiverBank string  `json:"receiver_bank"`
+    AmountKES    float64 `json:"amount_kes"`
+    IsApproved   bool    `json:"is_approved"`
 }
 
 func main() {
@@ -398,14 +467,12 @@ func main() {
         IsApproved:   true,
     }
 
-    // Convert the struct to JSON bytes
     jsonBytes, err := json.Marshal(tx)
     if err != nil {
-        fmt.Println("Error:", err)
+        fmt.Println("Error converting to JSON:", err)
         return
     }
 
-    // Convert bytes to a readable string and print
     fmt.Println(string(jsonBytes))
 }
 ```
@@ -415,61 +482,35 @@ func main() {
 {"id":"TX-2026-001","sender_bank":"KCB Bank","receiver_bank":"Equity Bank","amount_kes":15750,"is_approved":true}
 ```
 
-Notice how the JSON uses `sender_bank` (from the struct tag) instead of `SenderBank`. That is the struct tag doing its job.
+Notice `sender_bank` in the output — not `SenderBank`. The struct tag did its job.
 
 ---
 
 ---
 
-# Chapter 4: Functions — Reusable Recipes
+# Chapter 4: Functions — Writing Reusable Recipes
 
 ---
 
-### 📖 Plain English
+## 📖 The Analogy First
 
-A **function** is a named, reusable recipe. You write it once, give it a name, and call it by name whenever you need it. Functions keep your code organized and prevent repetition.
+Imagine the CONNEX gateway processes 10,000 transactions per day. Every single one needs to have its data "fingerprinted" (hashed with SHA-256). You could write the hashing code 10,000 times — or you could write it ONCE, give it a name, and call it whenever you need it.
 
-A function can:
-- Take **parameters** (ingredients you pass in)
-- Return **values** (results it hands back)
-- Return **multiple values** (Go allows this — most functions return a result AND an error)
+That is a **function**: a named, reusable recipe. You write it once. The computer runs it as many times as you call it.
 
-**Basic structure:**
 ```
-func functionName(parameter1 type, parameter2 type) returnType {
-    // do things here
-    return result
-}
-```
-
----
-
-### 🔍 The Real Code — `cmd/witness/main.go` Lines 67–70
-
-```go
-// fingerprint returns the first 16 hex characters of SHA-256(pubkey).
-func fingerprint(pub ed25519.PublicKey) string {
-    h := sha256.Sum256(pub)               // Hash the public key bytes
-    return hex.EncodeToString(h[:])[:16]  // Convert to hex, take first 16 chars
-}
+RECIPE: sha256Hex
+─────────────────
+  INGREDIENTS: any binary data ([]byte)
+  STEPS:
+    1. Compute SHA-256 hash of the data
+    2. Convert the 32 raw bytes to a readable hex string
+  RESULT: a hex string like "d503ffab67cf2bdb..."
 ```
 
-**Breakdown:**
-
-| Part | Meaning |
-|------|---------|
-| `func fingerprint` | Define a function called `fingerprint` |
-| `(pub ed25519.PublicKey)` | It takes one parameter named `pub` of type `ed25519.PublicKey` |
-| `string` (after `)`) | It returns one `string` value |
-| `sha256.Sum256(pub)` | Compute the SHA-256 hash of the public key. Returns `[32]byte` |
-| `h[:]` | Convert the fixed-size array `[32]byte` to a flexible slice `[]byte` |
-| `hex.EncodeToString(...)` | Convert bytes to a hex string like `"adf9bb79c93556f9..."` |
-| `[:16]` | Slice it: take only characters 0 through 15 |
-| `return` | Hand the result back to whatever called this function |
-
 ---
 
-### 🔍 The Real Code — `cmd/gateway/main.go` Lines 125–128
+## 🔍 Real Code: `cmd/gateway/main.go` — Lines 125–128
 
 ```go
 func sha256Hex(data []byte) string {
@@ -478,51 +519,82 @@ func sha256Hex(data []byte) string {
 }
 ```
 
-This tiny function is one of the most important in CONNEX. Every ISO 8583 message and every ISO 20022 XML document gets passed through this function. The output is a "fingerprint" — if even a single character changes, the entire fingerprint changes completely. This is how tampering is detected.
+**Every single piece:**
+
+```
+func sha256Hex  (data []byte)  string  {
+│    │            │              │
+│    │            │              └── This function gives back a string
+│    │            └─────────────── The ingredient: raw bytes named "data"
+│    └──────────────────────────── The recipe's name
+└───────────────────────────────── The keyword that starts any recipe definition
+```
+
+Inside:
+```go
+h := sha256.Sum256(data)    // Compute the hash. h is of type [32]byte
+return hex.EncodeToString(h[:]) // h[:] converts [32]byte to []byte, then encode to hex
+```
+
+This function is called on EVERY transaction in the Gateway. The `originalHash` and `enrichedHash` inside every Bundle are both produced by this exact function.
 
 ---
 
-### 🔍 The Real Code — Multiple Return Values — `cmd/witness/main.go` Lines 33–64
+## 🔍 Real Code: Multiple Return Values — `cmd/witness/main.go` Lines 33, 63
 
-Go functions can return multiple values at once. The Witness keypair loader returns THREE things:
+Go functions can return multiple values at once. Most functions that can fail return a result AND an error:
 
 ```go
+// This function returns THREE values:
 func loadOrGenerate(keyPath string) (ed25519.PublicKey, ed25519.PrivateKey, error) {
     // ... does work ...
-    return pub, priv, nil   // Return: public key, private key, no error
+    return pub, priv, nil    // Success: public key, private key, no error (nil)
 }
+
+// The caller receives all three:
+pub, priv, err := loadOrGenerate(*keyPath)
+//   │     │     └── The third: error (nil if all went well)
+//   │     └──────── The second: private key
+//   └────────────── The first: public key
 ```
 
-And the caller receives all three:
+If a function returns two things and you only care about the first, use `_` to discard the rest:
 
 ```go
-pub, priv, err := loadOrGenerate(*keyPath)
+pub, _, err := loadOrGenerate(*keyPath)  // Discard the private key
 ```
-
-The third return value `error` follows a Go convention: if it is `nil`, everything worked. If it is not `nil`, something went wrong and you should stop.
 
 ---
 
-### ✏️ Quiz 4
+## 🧠 Feynman Check — Teach It Back
 
-**Task:** Create `sandbox/quiz4.go`.
+Explain out loud, as if to a friend:
 
-Write TWO functions:
+> *"What is a function? Why do Go functions often return two values? What does `return` do?"*
+
+---
+
+## ✏️ Quiz 4
+
+**Create:** `sandbox/quiz4.go`
+
+Write two functions:
 
 **Function 1:** `hashText(input string) string`
 - Takes any string
-- Computes its SHA-256 hash using `sha256.Sum256([]byte(input))`
+- Converts it to bytes with `[]byte(input)`
+- Computes `sha256.Sum256` on those bytes
 - Returns the hex string of the hash
 
-**Function 2:** `makeTransactionID(bankCode string, sequenceNumber int) string`
+**Function 2:** `makeTransactionID(bankCode string, seq int) string`
 - Takes a bank code like `"KCB"` and a sequence number like `42`
-- Returns a string formatted as: `"TX-KCB-042-20260527"` (bank code + zero-padded number + today's date)
+- Returns a formatted ID: `"TX-KCB-042-20260527"` (zero-pad the number to 3 digits with `%03d`, use today's date)
 
-In `main()`, call both functions and print their results.
+Call both functions in `main()` and print the results.
 
 ---
 
-### ✅ Answer — Quiz 4
+## ✅ Answer — Quiz 4
 
 ```go
 package main
@@ -534,25 +606,23 @@ import (
     "time"
 )
 
-// hashText computes the SHA-256 hash of any string and returns it as hex.
+// hashText hashes any string with SHA-256 and returns the hex representation.
 func hashText(input string) string {
-    h := sha256.Sum256([]byte(input)) // Convert string to bytes first, then hash
-    return hex.EncodeToString(h[:])   // Convert the 32-byte hash to a hex string
+    h := sha256.Sum256([]byte(input))  // []byte() converts string to raw bytes
+    return hex.EncodeToString(h[:])    // h[:] converts [32]byte array to a slice
 }
 
 // makeTransactionID creates a unique transaction ID from bank code + sequence + date.
-func makeTransactionID(bankCode string, sequenceNumber int) string {
+func makeTransactionID(bankCode string, seq int) string {
     today := time.Now().Format("20060102") // Format: YYYYMMDD
-    return fmt.Sprintf("TX-%s-%03d-%s", bankCode, sequenceNumber, today)
-    // %03d means: print the integer with at least 3 digits, zero-padded (so 42 becomes "042")
+    return fmt.Sprintf("TX-%s-%03d-%s", bankCode, seq, today)
+    // %03d = integer with minimum 3 digits, zero-padded: 42 becomes "042"
 }
 
 func main() {
-    // Test hashText
     hash := hashText("Hello CONNEX")
-    fmt.Println("SHA-256 hash:", hash)
+    fmt.Println("SHA-256:", hash)
 
-    // Test makeTransactionID
     txID := makeTransactionID("KCB", 42)
     fmt.Println("Transaction ID:", txID)
 }
@@ -560,7 +630,7 @@ func main() {
 
 **Expected output:**
 ```
-SHA-256 hash: 3b5d5c3712955042212316173ccf37be9baaea1bc23b9f1ec95b938db4c4d96c
+SHA-256: 3b5d5c3712955042212316173ccf37be9baaea1bc23b9f1ec95b938db4c4d96c
 Transaction ID: TX-KCB-042-20260527
 ```
 
@@ -568,90 +638,104 @@ Transaction ID: TX-KCB-042-20260527
 
 ---
 
-# Chapter 5: Methods — Functions Attached to Structs
+## 🔄 Review Checkpoint 2 — Spaced Repetition
+
+Answer from memory — no peeking:
+
+1. What is the difference between `:=` and `=`?
+2. What does a struct tag like `` `json:"bundle_id"` `` do?
+3. A function has signature `func process(data []byte) (string, error)`. What does it take and what does it return?
+4. What does `return` do inside a function?
+5. Write the one-line function `sha256Hex` from memory.
 
 ---
 
-### 📖 Plain English
+---
 
-A **method** is a function that "belongs to" a struct. Instead of being called like `doSomething(myStruct)`, it is called like `myStruct.doSomething()`.
+# Chapter 5: Methods — Functions That Belong to a Struct
 
-You attach a function to a struct by adding a **receiver** before the function name:
+---
 
+## 📖 The Analogy First
+
+A `Bundle` struct holds transaction data. But it can also have **actions** it knows how to perform on itself — like a bank account knowing how to calculate its own balance.
+
+In Go, you attach functions to structs. These are called **methods**. The difference:
+
+```
+Regular function:   sha256Hex(data)         — you pass data in
+Method on struct:   bundle.ChainSummary()   — the struct is the context
+```
+
+To attach a function to a struct, you add a **receiver** before the function name:
 ```go
-func (variableName *StructType) MethodName() returnType {
-    // use variableName.FieldName to access the struct's data
+func (b *Bundle) ChainSummary() string {
+//   │  │                                
+//   │  └─ The struct type this method belongs to  
+//   └──── The name we use to refer to THIS bundle inside the function
+    return b.BundleID + " → " + b.ChainHash
 }
 ```
 
-The `*` before the type means the method works on the **original** struct, not a copy. This is important for large data structures. Without the `*`, Go makes a copy of the struct before calling the method, and any changes inside the method are thrown away.
-
 ---
 
-### 🔍 The Real Code — `cmd/witness/main.go` Lines 82–93
+## 🔍 Real Code: `cmd/witness/main.go` — Lines 82–93
 
 ```go
 func (w *witness) handlePubkey(rw http.ResponseWriter, r *http.Request) {
+    // Check if the request is a GET request
     if r.Method != http.MethodGet {
         http.Error(rw, "GET required", http.StatusMethodNotAllowed)
         return
     }
+    // Set the response format to JSON
     rw.Header().Set("Content-Type", "application/json")
+    // Build a JSON response and send it
     json.NewEncoder(rw).Encode(map[string]string{
-        "witness":     w.witnessName,
+        "witness":     w.witnessName,   // ← access witness fields with w.
         "public_key":  base64.StdEncoding.EncodeToString(w.pub),
         "fingerprint": w.fp,
     })
 }
 ```
 
-**Breakdown:**
-
-| Part | Meaning |
-|------|---------|
-| `(w *witness)` | This method is attached to the `witness` struct. Inside this method, `w` refers to this specific witness |
-| `w.witnessName` | Access the `witnessName` field of this witness using the dot `.` |
-| `r.Method != http.MethodGet` | Check if the HTTP request method is GET. If not, reject it |
-| `http.Error(rw, ..., 405)` | Send an HTTP 405 "Method Not Allowed" error response |
-| `json.NewEncoder(rw).Encode(...)` | Convert the map to JSON and write it directly to the HTTP response |
+When the Gateway calls `GET http://localhost:8091/v1/pubkey`, this method runs. The `w` variable is the specific witness instance (Alpha, Beta, or Gamma) that is handling the request.
 
 ---
 
-### 🔍 The Real Code — `internal/iso8583/parser.go` Lines 91–101
+## 🔍 Real Code: `internal/iso8583/parser.go` — Lines 91–101
 
 ```go
 func (m *Message) AmountKES() float64 {
-    s, ok := m.Fields[4]          // Look up field 4 (Transaction Amount) in the map
-    if !ok || s == "" {           // If field 4 is missing or empty...
-        return 0                  // ...return zero (no amount)
+    s, ok := m.Fields[4]          // Look for field 4 in the message's field map
+    if !ok || s == "" {           // If field 4 is missing or blank...
+        return 0                   // ...the amount is zero
     }
     n, err := strconv.ParseInt(strings.TrimLeft(s, "0 "), 10, 64)
     if err != nil {
         return 0
     }
-    return float64(n) / 100.0    // Divide by 100 because ISO 8583 stores amounts in cents
+    return float64(n) / 100.0    // ISO 8583 stores 1000.00 KES as "000000100000"
 }
 ```
 
-This method is how CONNEX reads the money amount from a legacy bank message. ISO 8583 stores `1000.00 KES` as the string `"000000100000"` (in cents, zero-padded). This method converts that to `1000.0`.
+ISO 8583 stores money as an integer in cents. `"000000100000"` means `1000.00 KES`. This method does the conversion automatically. Every part of CONNEX that needs the transaction amount calls `msg.AmountKES()` — never reading `Fields[4]` directly.
 
 ---
 
-### ✏️ Quiz 5
+## ✏️ Quiz 5
 
-**Task:** Create `sandbox/quiz5.go`.
+**Create:** `sandbox/quiz5.go`
 
-1. Reuse your `BankTransaction` struct from Quiz 3
-2. Add a method called `Summary()` that returns a `string` describing the transaction:
-   `"[ID]: [SenderBank] → [ReceiverBank] | KES [AmountKES] | Approved: [IsApproved]"`
-3. Add a second method called `IsLargeTransaction()` that returns a `bool`:
-   - Returns `true` if `AmountKES` is greater than `100000`
-   - Returns `false` otherwise
-4. In `main()`, create a transaction and call both methods
+1. Use your `BankTransaction` struct from Quiz 3
+2. Add a method `Summary() string` that returns:
+   `"TX-ID: [ID] | [SenderBank] → [ReceiverBank] | KES [AmountKES]"`
+3. Add a method `IsLargeTransaction() bool` that returns `true` if `AmountKES > 100000`
+4. In `main()`, create a transaction with amount `250000`, call both methods, and print the results with an appropriate message for large transactions
 
 ---
 
-### ✅ Answer — Quiz 5
+## ✅ Answer — Quiz 5
 
 ```go
 package main
@@ -666,20 +750,20 @@ type BankTransaction struct {
     IsApproved   bool
 }
 
-// Summary returns a human-readable description of the transaction.
+// Summary returns a human-readable one-line description of the transaction.
 func (t *BankTransaction) Summary() string {
-    return fmt.Sprintf("%s: %s → %s | KES %.2f | Approved: %v",
-        t.ID, t.SenderBank, t.ReceiverBank, t.AmountKES, t.IsApproved)
+    return fmt.Sprintf("TX-ID: %s | %s → %s | KES %.2f",
+        t.ID, t.SenderBank, t.ReceiverBank, t.AmountKES)
 }
 
-// IsLargeTransaction returns true if the amount exceeds 100,000 KES.
+// IsLargeTransaction flags transactions above the 100,000 KES threshold.
 func (t *BankTransaction) IsLargeTransaction() bool {
     return t.AmountKES > 100000
 }
 
 func main() {
-    tx := &BankTransaction{
-        ID:           "TX-2026-001",
+    tx := &BankTransaction{  // The & creates a pointer — the method can modify the original
+        ID:           "TX-2026-099",
         SenderBank:   "KCB Bank",
         ReceiverBank: "Equity Bank",
         AmountKES:    250000.00,
@@ -689,77 +773,85 @@ func main() {
     fmt.Println(tx.Summary())
 
     if tx.IsLargeTransaction() {
-        fmt.Println("⚠️  Large transaction — flagged for compliance review")
+        fmt.Println("⚠️  ALERT: Large transaction — flagged for compliance review")
     } else {
-        fmt.Println("✅  Standard transaction — cleared")
+        fmt.Println("✅  Standard transaction cleared")
     }
 }
 ```
 
 **Expected output:**
 ```
-TX-2026-001: KCB Bank → Equity Bank | KES 250000.00 | Approved: true
-⚠️  Large transaction — flagged for compliance review
+TX-ID: TX-2026-099 | KCB Bank → Equity Bank | KES 250000.00
+⚠️  ALERT: Large transaction — flagged for compliance review
 ```
 
 ---
 
 ---
 
-# Chapter 6: Error Handling — Never Ignore a Problem
+# Chapter 6: Error Handling — Never Let Problems Go Silent
 
 ---
 
-### 📖 Plain English
+## 📖 The Analogy First
 
-In a banking system, silent failures are catastrophic. If something goes wrong when writing to the ledger and the program just moves on, a transaction could be lost forever.
+Imagine a bank teller who processes a transaction, realizes the system rejected it, but just smiles and hands you a receipt saying "Approved!" That would be a catastrophe.
 
-Go solves this with a rule: **functions that can fail return an `error` as their last value.** You MUST check it. If the error is `nil`, everything is fine. If it is not `nil`, something went wrong and you need to stop.
+In Go, **silence is not allowed**. Every function that can fail returns an `error` as its last value. You MUST check it. If you don't, Go will actually warn you.
+
+```
+The Go Rule: If a function can fail, it MUST tell you.
+The Your Rule: If a function tells you it can fail, you MUST check if it did.
+```
+
+The pattern appears in nearly every function call in CONNEX:
 
 ```go
-result, err := someFunction()
-if err != nil {
-    // Handle the problem here — log it, return it, or stop the program
+result, err := doSomething()
+if err != nil {              // "If there was an error..."
+    // handle it — log it, return it, or stop
 }
-// If we reach this line, everything worked
+// If we reach here, everything worked perfectly
 ```
+
+`nil` in Go means "nothing" or "empty". An `error` that equals `nil` means "no error occurred."
 
 ---
 
-### 🔍 The Real Code — `cmd/witness/main.go` Lines 47–63
+## 🔍 Real Code: `cmd/witness/main.go` — Lines 47–63
 
 ```go
-// Generate a fresh keypair
+// Generate fresh keypair
 pub, priv, err := ed25519.GenerateKey(rand.Reader)
 if err != nil {
     return nil, nil, fmt.Errorf("generate keypair: %w", err)
 }
 
-// Save the private key to disk with strict permissions (0600 = owner read/write only)
+// Save private key to disk — 0600 means ONLY the owner can read it (maximum privacy)
 if err := os.WriteFile(privPath, priv, 0600); err != nil {
     return nil, nil, fmt.Errorf("write private key: %w", err)
 }
 
-// Save the public key to disk with looser permissions (0644 = anyone can read)
+// Save public key to disk — 0644 means anyone can read it (it's meant to be shared)
 if err := os.WriteFile(pubPath, pub, 0644); err != nil {
     return nil, nil, fmt.Errorf("write public key: %w", err)
 }
 ```
 
-**Breakdown:**
+**Key concepts:**
 
-| Part | Meaning |
-|------|---------|
-| `pub, priv, err :=` | Receive three values from the function |
-| `if err != nil` | "If there was an error..." |
-| `return nil, nil, fmt.Errorf(...)` | Stop this function and return the error upward |
-| `fmt.Errorf("generate keypair: %w", err)` | Wrap the error with context. The `%w` verb wraps the original error so it can be inspected later |
-| `0600` | Unix file permission: only the owner can read and write. The private key must stay secret |
-| `0644` | Unix file permission: anyone can read but only the owner can write. Public keys are meant to be shared |
+| Code | What it means |
+|------|--------------|
+| `if err != nil` | "Did something go wrong?" |
+| `return nil, nil, err` | "Yes — stop everything and pass the error up to the caller" |
+| `fmt.Errorf("context: %w", err)` | Wrap the error with extra context so the error message shows a trail |
+| `0600` | File permission: only the owner can read/write. Private key must stay secret |
+| `0644` | File permission: owner can write, everyone can read. Public keys are designed to be shared |
 
 ---
 
-### 🔍 The Real Code — `cmd/gateway/main.go` Lines 268–272
+## 🔍 Real Code: `cmd/gateway/main.go` — Lines 268–272
 
 ```go
 if err != nil {
@@ -769,33 +861,32 @@ if err != nil {
 }
 ```
 
-If writing to the database fails, CONNEX:
-1. Logs the error with structured fields (bundle ID + the actual error)
-2. Returns an HTTP 500 error to the client
-3. Stops the handler with `return` (no bundle is returned)
+If writing to the SQLite ledger fails, CONNEX:
+1. Logs the error with structured key-value pairs (`"bundle"`, `"err"`)
+2. Returns HTTP 500 to the client
+3. Returns immediately — it does NOT send back a "success" response
 
-This is correct banking behavior: never claim a transaction succeeded if you cannot prove it was stored.
+This is why a bank can trust CONNEX: it will never pretend a transaction succeeded if it wasn't stored.
 
 ---
 
-### ✏️ Quiz 6
+## ✏️ Quiz 6
 
-**Task:** Create `sandbox/quiz6.go`.
+**Create:** `sandbox/quiz6.go`
 
-Write a function called `readTransactionFile(filename string) (string, error)` that:
-1. Uses `os.ReadFile(filename)` to read a file
-2. If it fails, returns an empty string `""` and a wrapped error: `fmt.Errorf("readTransactionFile: %w", err)`
-3. If it succeeds, returns the file content as a string and `nil` for the error
+Write a function `readTransactionFile(filename string) (string, error)` that:
+1. Calls `os.ReadFile(filename)` to read a file
+2. If it fails → returns `""` and a wrapped error: `fmt.Errorf("readTransactionFile: %w", err)`
+3. If it succeeds → returns the file content as `string` and `nil`
 
 In `main()`:
-1. Call `readTransactionFile("transactions.json")` (this file does NOT exist)
-2. Check the error properly
-3. If there is an error, print: `"Failed to load transactions: [error message]"`
-4. If there is no error, print the file contents
+1. Call it with `"transactions.json"` (which does not exist)
+2. Check the error and print `"Failed to load: [error message]"` if it fails
+3. If no error, print the file content
 
 ---
 
-### ✅ Answer — Quiz 6
+## ✅ Answer — Quiz 6
 
 ```go
 package main
@@ -805,150 +896,159 @@ import (
     "os"
 )
 
-// readTransactionFile reads a file and returns its contents as a string.
-// If the file cannot be read, it returns an empty string and a descriptive error.
 func readTransactionFile(filename string) (string, error) {
     data, err := os.ReadFile(filename)
     if err != nil {
-        // Wrap the error with context so the caller knows where it came from
+        // Wrap with context: now the caller knows this came from readTransactionFile
         return "", fmt.Errorf("readTransactionFile: %w", err)
     }
-    // Convert the raw bytes to a string and return with nil error
-    return string(data), nil
+    return string(data), nil  // nil = no error
 }
 
 func main() {
     content, err := readTransactionFile("transactions.json")
     if err != nil {
-        fmt.Println("Failed to load transactions:", err)
+        fmt.Println("Failed to load:", err)
         return
     }
     fmt.Println("File contents:", content)
 }
 ```
 
-**Expected output** (since `transactions.json` does not exist):
+**Expected output:**
 ```
-Failed to load transactions: readTransactionFile: open transactions.json: The system cannot find the file specified.
+Failed to load: readTransactionFile: open transactions.json: The system cannot find the file specified.
 ```
 
-Notice how the error message chains together: your wrapper message `"readTransactionFile:"` + the original OS error. This chain is very useful for debugging in a production banking system.
+Notice the chain: your message → original OS error. This chaining (`%w`) is what makes debugging in production fast. You always know exactly where in the code the failure happened.
 
 ---
 
 ---
 
-# Chapter 7: Goroutines — Doing Things at the Same Time
+## 🔄 Review Checkpoint 3 — Spaced Repetition
+
+Answer from memory:
+
+1. What does `nil` mean when it is the value of an `error`?
+2. What does `fmt.Errorf("context: %w", err)` do that `fmt.Errorf("context: %v", err)` does not?
+3. What is the difference between a regular function and a method?
+4. In `func (m *Message) AmountKES() float64`, what does the `*` mean?
+5. Why would a banking system NEVER silently ignore an error?
 
 ---
 
-### 📖 Plain English
+---
 
-Normally a computer executes instructions one at a time, line by line. But CONNEX needs to ask 3 Witness nodes for cryptographic signatures **at the exact same moment**. If it asked them one by one, it would take 3× as long.
+# Chapter 7: Goroutines — Running Code Simultaneously
 
-In Go, you put the keyword `go` in front of a function call to launch it instantly in the background. This background task is called a **goroutine**. It is extremely lightweight — you can run thousands of them simultaneously.
+---
 
-**Without goroutines (slow):**
-```
-Ask Witness Alpha → Wait 50ms → Get signature
-Ask Witness Beta  → Wait 50ms → Get signature
-Ask Witness Gamma → Wait 50ms → Get signature
-Total time: 150ms
-```
+## 📖 The Analogy First
 
-**With goroutines (fast):**
-```
-Ask Witness Alpha ──┐
-Ask Witness Beta  ──┼──→ All three run at the same time
-Ask Witness Gamma ──┘
-Total time: ~50ms (the slowest one)
+Imagine you need signatures from three different bank officers — Alpha, Beta, and Gamma. 
+
+**Bad approach:** Walk to Alpha's desk, wait for them to sign, walk to Beta's desk, wait, walk to Gamma's desk, wait. Total time: 3× the signing time.
+
+**Good approach:** Send all three a signing request at the exact same moment. They all work in parallel. Total time: as long as the slowest one.
+
+That is what a **goroutine** does. The keyword `go` before a function call launches it instantly in the background, so your main program keeps moving without waiting.
+
+```go
+processPayment("TX-A")   // Takes 50ms — main program WAITS here
+processPayment("TX-B")   // Takes 50ms — main program WAITS here
+// Total: 100ms
+
+go processPayment("TX-A") // Launches in background — main program DOESN'T wait
+go processPayment("TX-B") // Launches in background — main program DOESN'T wait
+// Total: ~50ms (both run at the same time)
 ```
 
 ---
 
-### 🔍 The Real Code — `cmd/gateway/main.go` Lines 87–121
+## 🔍 Real Code: `cmd/gateway/main.go` — Lines 87–121
 
-This is the most important function in the entire CONNEX system:
+This is the most important function in the entire CONNEX system. Read it slowly:
 
 ```go
 func collectSignatures(witnesses []string, tokens []string, hashBytes []byte, timeout time.Duration) []SignatureEntry {
 
-    // A temporary struct to hold either a good signature OR an error
+    // Step 1: Define a mini-struct to hold one goroutine's result
     type result struct {
         sig *SignatureEntry
         err error
     }
 
-    // Create a channel — a pipe that goroutines send their results through
+    // Step 2: Create a CHANNEL — a safe pipe goroutines use to send results back
     ch := make(chan result, len(witnesses))
 
-    // Launch one goroutine per witness — all three start at the same time
+    // Step 3: Launch ONE goroutine per witness — ALL start at the same time
     for i, w := range witnesses {
-        w := w // Important: capture the variable for the goroutine (explained below)
+        w := w  // Capture the variable — important! (explained below)
         var token string
         if i < len(tokens) {
             token = tokens[i]
         }
-        go func() {
+        go func() {                                  // ← "go" = launch in background
             sig, err := requestSignature(w, token, hashBytes, timeout)
-            ch <- result{sig, err} // Send result through the pipe
+            ch <- result{sig, err}                   // ← push result into the pipe
         }()
     }
 
-    // Now collect results as they arrive
+    // Step 4: Collect results as they arrive, with a timeout
     var sigs []SignatureEntry
-    deadline := time.After(timeout) // Set a countdown timer
+    deadline := time.After(timeout)  // A timer that fires after [timeout] duration
 
     for range witnesses {
         select {
-        case r := <-ch:         // A result came through the pipe
+        case r := <-ch:                   // ← a result arrived through the pipe
             if r.err != nil {
                 slog.Warn("witness error", "err", r.err)
             } else {
-                sigs = append(sigs, *r.sig) // Add the signature to our list
+                sigs = append(sigs, *r.sig)
             }
-        case <-deadline:        // The countdown timer ran out
+        case <-deadline:                  // ← the timer ran out
             slog.Warn("witness timeout reached", "collected", len(sigs))
-            return sigs         // Return whatever we have collected so far
+            return sigs                   // Return whatever we collected so far
         }
     }
     return sigs
 }
 ```
 
-**Key concepts used here:**
+**New concepts in this function:**
 
-| Concept | What it is |
-|---------|-----------|
-| `ch := make(chan result, ...)` | A **channel** — a safe pipe for passing data between goroutines |
-| `go func() { ... }()` | Launch an anonymous function as a goroutine (background task) |
-| `ch <- result{sig, err}` | **Send** a result into the channel pipe |
-| `r := <-ch` | **Receive** a result from the channel pipe |
-| `select { case ...: case ...: }` | Wait for whichever event happens first |
-| `time.After(timeout)` | A channel that receives one value after the timer expires |
+| Concept | Plain English |
+|---------|--------------|
+| `ch := make(chan result, 3)` | A channel is a pipe. Goroutines push data in; the main code pulls data out |
+| `ch <- value` | **Send** a value into the channel (goroutine → channel) |
+| `value := <-ch` | **Receive** a value from the channel (channel → main code) |
+| `select { case ...: case ...: }` | "Wait for whichever of these events happens first" |
+| `time.After(150ms)` | Creates a channel that sends one value after 150ms — the perfect timeout |
+
+**Why `w := w` before the goroutine?**
+In a loop, the variable `w` changes with every iteration. Without capturing it, all goroutines might share the same (last) value of `w`. By writing `w := w`, you create a new copy of `w` that belongs exclusively to this goroutine.
 
 ---
 
-### ✏️ Quiz 7
+## ✏️ Quiz 7
 
-**Task:** Create `sandbox/quiz7.go`.
+**Create:** `sandbox/quiz7.go`
 
-Simulate 3 witness nodes responding at different speeds:
+Simulate 3 witness nodes:
 
-1. Create a channel that carries strings: `make(chan string, 3)`
+1. Create `results := make(chan string, 3)`
 2. Launch 3 goroutines:
-   - Goroutine 1: sleeps 1 second, then sends `"Alpha signed ✓"` to the channel
-   - Goroutine 2: sleeps 2 seconds, then sends `"Beta signed ✓"` to the channel
-   - Goroutine 3: sleeps 5 seconds, then sends `"Gamma signed ✓"` to the channel
-3. In `main()`, use a `for` loop that runs exactly 3 times. Inside it, use a `select` with:
-   - A `case` to receive from the channel and print the message
-   - A `case <-time.After(3 * time.Second)` that prints `"Timeout — quorum check"` and stops
-
-**Expected behavior:** Alpha and Beta respond in time. Gamma does not.
+   - Goroutine 1: sleep 1 second → send `"Alpha signed ✓"`
+   - Goroutine 2: sleep 2 seconds → send `"Beta signed ✓"`
+   - Goroutine 3: sleep 5 seconds → send `"Gamma signed ✓"` *(will time out)*
+3. In `main()`, use a `for` loop running 3 times. Inside, use `select` with:
+   - A case to receive from `results` and print the message
+   - A `case <-time.After(3 * time.Second)` that prints `"⏰ Timeout"`, then checks if you have ≥ 2 signatures (quorum) and returns
 
 ---
 
-### ✅ Answer — Quiz 7
+## ✅ Answer — Quiz 7
 
 ```go
 package main
@@ -959,9 +1059,9 @@ import (
 )
 
 func main() {
-    results := make(chan string, 3) // Buffered channel for 3 results
+    results := make(chan string, 3)
 
-    // Launch 3 goroutines simultaneously
+    // Launch all 3 goroutines simultaneously
     go func() {
         time.Sleep(1 * time.Second)
         results <- "Alpha signed ✓"
@@ -973,26 +1073,25 @@ func main() {
     }()
 
     go func() {
-        time.Sleep(5 * time.Second) // Too slow — will miss the deadline
+        time.Sleep(5 * time.Second) // Will not make it in time
         results <- "Gamma signed ✓"
     }()
 
-    // Collect results with a 3-second total deadline
-    signaturesCollected := 0
+    // Collect signatures with a 3-second deadline
+    collected := 0
     for i := 0; i < 3; i++ {
         select {
         case msg := <-results:
             fmt.Println("Received:", msg)
-            signaturesCollected++
+            collected++
         case <-time.After(3 * time.Second):
-            fmt.Println("Timeout — quorum check")
-            fmt.Printf("Signatures collected: %d/3\n", signaturesCollected)
-            if signaturesCollected >= 2 {
-                fmt.Println("QUORUM_MET ✓")
+            fmt.Println("⏰ Timeout — witness did not respond in time")
+            if collected >= 2 {
+                fmt.Printf("✅ QUORUM_MET — %d/3 signatures collected\n", collected)
             } else {
-                fmt.Println("QUORUM_FAILED ✗")
+                fmt.Printf("❌ QUORUM_FAILED — only %d/3 signatures\n", collected)
             }
-            return // Stop waiting
+            return
         }
     }
 }
@@ -1002,53 +1101,68 @@ func main() {
 ```
 Received: Alpha signed ✓
 Received: Beta signed ✓
-Timeout — quorum check
-Signatures collected: 2/3
-QUORUM_MET ✓
+⏰ Timeout — witness did not respond in time
+✅ QUORUM_MET — 2/3 signatures collected
 ```
 
-This output perfectly mirrors what CONNEX does every time a bank transaction is processed!
+This output perfectly mirrors what the real CONNEX Gateway produces when Witness Gamma is offline!
 
 ---
 
 ---
 
-# Chapter 8: Reading the Real Code
+## 🔄 Review Checkpoint 4 — Interleaved Practice
 
-## You Are Now Ready
+This checkpoint mixes all 7 chapters together. Answer from memory:
 
-You have now learned every concept used in the CONNEX Gateway and Witness Node. Let's prove it by reading the real `main()` function:
+1. **(Ch. 1)** What happens if you import a package but never use it?
+2. **(Ch. 2)** What is the difference between `string` and `[]byte`? When would you use each?
+3. **(Ch. 3)** What does the struct tag `` `json:"bundle_id"` `` do?
+4. **(Ch. 4)** Write the complete `sha256Hex` function from memory.
+5. **(Ch. 5)** What is the `*` in `func (w *witness) handlePubkey(...)` and why is it important?
+6. **(Ch. 6)** What does `fmt.Errorf("context: %w", err)` do that plain string concatenation cannot?
+7. **(Ch. 7)** What is a goroutine? What is a channel? How do they work together?
 
-Open `cmd/witness/main.go` and find `main()` starting at line 164. Here is what you will see and what you now know it means:
+---
+
+---
+
+# Chapter 8: Reading the Real Code — You Are Ready
+
+You have learned every concept used in the CONNEX source code. Let's prove it.
+
+Open `cmd/witness/main.go` and find `main()` at line 164. Here it is, fully annotated:
 
 ```go
 func main() {
-    // Chapter 1: package main means this is the entry point
-    // These are command-line flags (from the "flag" toolbox)
-    port    := flag.Int("port", 8091, "Port to listen on")
-    keyPath := flag.String("keypath", "keys/witness.key", "Path for Ed25519 keypair")
-    name    := flag.String("name", "witness", "Human-readable witness name")
-    token   := flag.String("token", "", "Shared authentication token secret")
-    flag.Parse() // Actually read the command-line arguments
+    // Ch.1: This is the entry point — package main + func main()
 
-    // Chapter 6: Error handling — loadOrGenerate returns 3 values
+    // Ch.2: Variables created from command-line flags
+    port    := flag.Int("port", 8091, "Port to listen on")
+    keyPath := flag.String("keypath", "keys/witness.key", "Keypair path")
+    name    := flag.String("name", "witness", "Witness name")
+    token   := flag.String("token", "", "Auth token")
+    flag.Parse()  // Actually read the arguments from the command line
+
+    // Ch.4 + Ch.6: Call a function, receive 3 values, check error
     pub, priv, err := loadOrGenerate(*keyPath)
     if err != nil {
         slog.Error("keypair setup failed", "err", err)
-        os.Exit(1) // Stop the program with an error code
+        os.Exit(1)  // Stop the whole program with exit code 1 (failure)
     }
 
-    // Chapter 4 & 5: Call the fingerprint function, build a witness struct
+    // Ch.4: Call fingerprint(), Ch.3: build a witness struct
     fp := fingerprint(pub)
     w := &witness{priv: priv, pub: pub, fp: fp, witnessName: *name, token: *token}
+    // The & makes a POINTER to the struct — the methods can modify the original
 
-    // Chapter 5: Register the HTTP route handlers (methods on the witness struct)
+    // Ch.5: Register HTTP routes — methods on the witness struct
     mux := http.NewServeMux()
-    mux.HandleFunc("/v1/pubkey", w.handlePubkey)
-    mux.HandleFunc("/v1/sign",   w.handleSign)
-    mux.HandleFunc("/health",    w.handleHealth)
+    mux.HandleFunc("/v1/pubkey", w.handlePubkey)  // GET → returns public key
+    mux.HandleFunc("/v1/sign",   w.handleSign)    // POST → signs a hash
+    mux.HandleFunc("/health",    w.handleHealth)  // GET → health check
 
-    // Chapter 6: Start the server and handle errors
+    // Ch.6: Start the server — handle any startup error
     addr := fmt.Sprintf(":%d", *port)
     if err := http.ListenAndServe(addr, mux); err != nil {
         slog.Error("server error", "err", err)
@@ -1057,12 +1171,32 @@ func main() {
 }
 ```
 
-Every single line — you now understand it.
+Every single line — you now understand it completely.
 
 ---
 
-## Your Final Challenge
+## 🏆 Final Challenge
 
-Open `cmd/gateway/main.go` and find the `handleCoordinate` function starting at line 148. It has 12 numbered steps in the comments. For each step, write in a notebook which **chapter** from this course the code in that step relates to.
+Open `cmd/gateway/main.go`. Find `handleCoordinate()` at line 148. It has **12 numbered steps** in the comments. For each step, write in a notebook:
 
-When you can do that, you are ready to start contributing to CONNEX.
+1. What Go concepts from this course does this step use?
+2. Why do you think the developer wrote it this way?
+
+When you can do that exercise, you are ready to contribute to CONNEX.
+
+---
+
+## 📅 Recommended Study Schedule
+
+Based on spaced repetition research, here is the optimal review schedule:
+
+| Day | Activity |
+|-----|----------|
+| Day 1 | Read Chapters 1–2, complete Quizzes 1–2 |
+| Day 2 | Complete Review Checkpoint 1, read Chapter 3, Quiz 3 |
+| Day 3 | Complete Chapters 4–5, Quizzes 4–5, Review Checkpoint 2 |
+| Day 5 | Re-do Quizzes 1–3 from memory (spaced repetition) |
+| Day 6 | Complete Chapters 6–7, Quizzes 6–7 |
+| Day 7 | Review Checkpoints 3–4, attempt Final Challenge |
+| Day 10 | Re-do all quizzes from memory |
+| Day 14 | Read `cmd/gateway/main.go` top to bottom — annotate every line |
