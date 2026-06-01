@@ -3,936 +3,757 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>CONNEX SoloLearn Interactive Academy</title>
-    <!-- Google Fonts -->
+    <title>CONNEX Developer Academy</title>
+    <!-- Google Fonts: Plus Jakarta Sans for headers, Inter for body, JetBrains Mono for code -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&family=JetBrains+Mono:wght@400;500;700&family=Plus+Jakarta+Sans:wght@500;600;700;800&display=swap" rel="stylesheet">
     
     <style>
         :root {
-            --bg-gradient-dark: linear-gradient(135deg, #0B0E14 0%, #151B26 100%);
-            --card-bg-dark: rgba(22, 28, 41, 0.65);
-            --border-color-dark: rgba(255, 255, 255, 0.08);
-            --text-main-dark: #E2E8F0;
-            --text-muted-dark: #94A3B8;
+            --bg-primary: #08090C;
+            --bg-secondary: #0F111A;
+            --panel-bg: #141722;
+            --border-color: #1F2436;
+            --border-hover: #333B56;
             
-            --accent-cyan: #00F2FE;
-            --accent-purple: #B927FC;
-            --accent-blue: #4FACFE;
-            --success-glow: #00FF87;
-            --error-glow: #FF416C;
+            --text-primary: #F8FAFC;
+            --text-secondary: #94A3B8;
+            --text-muted: #64748B;
             
-            --transition-speed: 0.3s;
+            --accent: #38BDF8;
+            --accent-glow: rgba(56, 189, 248, 0.15);
+            --success: #34D399;
+            --success-glow: rgba(52, 211, 153, 0.1);
+            --error: #F87171;
+            --error-glow: rgba(248, 113, 113, 0.1);
+            
+            --font-sans: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            --font-display: 'Plus Jakarta Sans', var(--font-sans);
+            --font-mono: 'JetBrains Mono', monospace;
+            
+            --radius-sm: 6px;
+            --radius-md: 10px;
+            --radius-lg: 16px;
+            
+            --transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         * {
             box-sizing: border-box;
             margin: 0;
             padding: 0;
-            font-family: 'Outfit', sans-serif;
-            -webkit-font-smoothing: antialiased;
         }
 
         body {
-            background: var(--bg-gradient-dark);
-            color: var(--text-main-dark);
+            background-color: var(--bg-primary);
+            color: var(--text-primary);
+            font-family: var(--font-sans);
+            line-height: 1.6;
             min-height: 100vh;
             overflow-x: hidden;
             display: flex;
             flex-direction: column;
         }
 
-        /* Glassmorphism Scrollbar */
+        /* ── Scrollbars ── */
         ::-webkit-scrollbar {
-            width: 8px;
-            height: 8px;
+            width: 6px;
+            height: 6px;
         }
         ::-webkit-scrollbar-track {
-            background: rgba(0, 0, 0, 0.2);
+            background: var(--bg-primary);
         }
         ::-webkit-scrollbar-thumb {
-            background: rgba(255, 255, 255, 0.1);
-            border-radius: 4px;
+            background: var(--border-color);
+            border-radius: 3px;
         }
         ::-webkit-scrollbar-thumb:hover {
-            background: rgba(255, 255, 255, 0.2);
+            background: var(--border-hover);
         }
 
+        /* ── Header ── */
         header {
-            padding: 1.5rem 2rem;
+            background: rgba(8, 9, 12, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid var(--border-color);
+            padding: 1.25rem 2rem;
             display: flex;
             justify-content: space-between;
             align-items: center;
-            border-bottom: 1px solid var(--border-color-dark);
-            background: rgba(11, 14, 20, 0.5);
-            backdrop-filter: blur(10px);
             position: sticky;
             top: 0;
             z-index: 100;
         }
 
-        .logo-container {
+        .logo-group {
             display: flex;
             align-items: center;
             gap: 0.75rem;
+            text-decoration: none;
+            color: inherit;
         }
 
-        .logo-icon {
-            width: 32px;
-            height: 32px;
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-purple));
-            border-radius: 8px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-weight: 800;
-            color: #0B0E14;
-            font-size: 1.2rem;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.3);
+        .logo-svg {
+            color: var(--text-primary);
+            flex-shrink: 0;
         }
 
-        .logo-text {
+        .logo-title {
+            font-family: var(--font-display);
             font-weight: 700;
-            font-size: 1.4rem;
-            letter-spacing: 1px;
-            background: linear-gradient(to right, #fff, var(--text-muted-dark));
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+            font-size: 1.25rem;
+            letter-spacing: -0.5px;
         }
 
-        .stats-bar {
+        .nav-tabs {
+            display: flex;
+            gap: 1.5rem;
+        }
+
+        .tab-trigger {
+            background: none;
+            border: none;
+            color: var(--text-secondary);
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.95rem;
+            cursor: pointer;
+            padding: 0.5rem 0;
+            border-bottom: 2px solid transparent;
+            transition: var(--transition);
+        }
+
+        .tab-trigger:hover {
+            color: var(--text-primary);
+        }
+
+        .tab-trigger.active {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
+
+        .progress-stats {
             display: flex;
             align-items: center;
             gap: 1.5rem;
         }
 
-        .stat-item {
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            background: rgba(255, 255, 255, 0.04);
-            padding: 0.5rem 1rem;
-            border-radius: 50px;
-            border: 1px solid var(--border-color-dark);
-            font-size: 0.9rem;
-            font-weight: 600;
-        }
-
-        .stat-item span.highlight {
-            color: var(--accent-cyan);
-            text-shadow: 0 0 10px rgba(0, 242, 254, 0.3);
-        }
-
-        .xp-bar-container {
-            width: 150px;
-            height: 8px;
-            background: rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            overflow: hidden;
-            display: inline-block;
-            vertical-align: middle;
-            margin-left: 0.5rem;
-        }
-
-        .xp-bar-fill {
-            height: 100%;
-            background: linear-gradient(to right, var(--accent-cyan), var(--accent-blue));
-            width: 0%;
-            transition: width 0.5s cubic-bezier(0.4, 0, 0.2, 1);
-        }
-
-        main {
-            flex: 1;
-            max-width: 1200px;
-            width: 100%;
-            margin: 0 auto;
-            padding: 2rem;
-            display: grid;
-            grid-template-columns: 1fr;
-            gap: 2rem;
-        }
-
-        /* ── Module Road Map Dashboard ── */
-        .dashboard-view {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 3rem;
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .welcome-hero {
-            text-align: center;
-            max-width: 600px;
-            margin-top: 1rem;
-        }
-
-        .welcome-hero h1 {
-            font-size: 2.5rem;
-            font-weight: 800;
-            margin-bottom: 0.5rem;
-            background: linear-gradient(135deg, #FFF 0%, var(--text-muted-dark) 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
-        }
-
-        .welcome-hero p {
-            color: var(--text-muted-dark);
-            font-size: 1.1rem;
-            line-height: 1.6;
-        }
-
-        .roadmap-container {
-            position: relative;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 5rem;
-            width: 100%;
-            max-width: 800px;
-            padding: 2rem 0;
-        }
-
-        .roadmap-line {
-            position: absolute;
-            top: 0;
-            bottom: 0;
-            width: 4px;
-            background: linear-gradient(to bottom, var(--accent-cyan), var(--accent-purple), rgba(255, 255, 255, 0.05));
-            z-index: 1;
-        }
-
-        .node-card {
-            background: var(--card-bg-dark);
-            border: 1px solid var(--border-color-dark);
-            border-radius: 16px;
-            padding: 1.5rem;
-            width: 340px;
-            backdrop-filter: blur(12px);
-            z-index: 2;
-            cursor: pointer;
-            transition: all var(--transition-speed) cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-            display: flex;
-            align-items: flex-start;
-            gap: 1rem;
-        }
-
-        .node-card::before {
-            content: '';
-            position: absolute;
-            top: 50%;
-            width: 24px;
-            height: 4px;
-            background: var(--border-color-dark);
-            z-index: -1;
-        }
-
-        .node-card.left {
-            align-self: flex-start;
-            margin-left: 5%;
-        }
-
-        .node-card.left::before {
-            right: -24px;
-        }
-
-        .node-card.right {
-            align-self: flex-end;
-            margin-right: 5%;
-        }
-
-        .node-card.right::before {
-            left: -24px;
-        }
-
-        .node-card:hover {
-            transform: translateY(-5px) scale(1.02);
-            border-color: var(--accent-cyan);
-            box-shadow: 0 10px 30px rgba(0, 242, 254, 0.15);
-        }
-
-        .node-icon-wrapper {
-            width: 50px;
-            height: 50px;
-            border-radius: 12px;
-            background: rgba(255, 255, 255, 0.05);
-            border: 1px solid var(--border-color-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.5rem;
-            color: var(--accent-cyan);
-            flex-shrink: 0;
-            transition: all var(--transition-speed);
-        }
-
-        .node-card:hover .node-icon-wrapper {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: #0B0E14;
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
-        }
-
-        .node-content h3 {
-            font-size: 1.1rem;
-            font-weight: 700;
-            margin-bottom: 0.25rem;
-        }
-
-        .node-content p {
+        .xp-count {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            padding: 0.4rem 0.8rem;
+            font-family: var(--font-mono);
             font-size: 0.85rem;
-            color: var(--text-muted-dark);
-            line-height: 1.4;
-        }
-
-        .node-badge {
-            position: absolute;
-            top: -10px;
-            right: -10px;
-            background: var(--accent-purple);
-            color: #fff;
-            font-size: 0.7rem;
-            font-weight: 700;
-            padding: 0.25rem 0.6rem;
-            border-radius: 20px;
-            box-shadow: 0 4px 10px rgba(185, 39, 252, 0.3);
-        }
-
-        .node-status {
-            font-size: 0.75rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-top: 0.5rem;
-            color: var(--accent-cyan);
-            display: flex;
-            align-items: center;
-            gap: 0.25rem;
-        }
-
-        .node-card.locked {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
-        .node-card.locked:hover {
-            transform: none;
-            border-color: var(--border-color-dark);
-            box-shadow: none;
-        }
-
-        .node-card.locked .node-icon-wrapper {
-            color: var(--text-muted-dark);
-        }
-
-        .node-card.locked .node-status {
-            color: var(--text-muted-dark);
-        }
-
-        /* ── Lesson & Slide View ── */
-        .lesson-view {
-            display: none;
-            grid-template-columns: 1fr;
-            max-width: 800px;
-            margin: 0 auto;
-            animation: fadeIn 0.4s ease-in-out;
-        }
-
-        .lesson-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 1.5rem;
-        }
-
-        .back-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted-dark);
-            cursor: pointer;
-            font-size: 1rem;
-            font-weight: 600;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            transition: color var(--transition-speed);
-        }
-
-        .back-btn:hover {
-            color: #fff;
-        }
-
-        .slide-progress {
-            font-size: 0.9rem;
-            font-weight: 600;
-            color: var(--accent-cyan);
-        }
-
-        .slide-card {
-            background: var(--card-bg-dark);
-            border: 1px solid var(--border-color-dark);
-            border-radius: 20px;
-            padding: 2.5rem;
-            backdrop-filter: blur(15px);
-            min-height: 400px;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            position: relative;
-        }
-
-        .slide-content h2 {
-            font-size: 1.8rem;
-            font-weight: 800;
-            margin-bottom: 1.25rem;
-            color: #fff;
-        }
-
-        .slide-content p {
-            font-size: 1.05rem;
-            line-height: 1.6;
-            color: var(--text-main-dark);
-            margin-bottom: 1.5rem;
-        }
-
-        /* Highlight box for key definitions */
-        .alert-box {
-            background: rgba(185, 39, 252, 0.08);
-            border-left: 4px solid var(--accent-purple);
-            padding: 1rem;
-            border-radius: 0 8px 8px 0;
-            margin-bottom: 1.5rem;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .alert-box.warning {
-            background: rgba(255, 65, 108, 0.08);
-            border-left-color: var(--error-glow);
-        }
-
-        /* Code display blocks */
-        pre {
-            background: #07090D;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1.25rem;
-            overflow-x: auto;
-            margin-bottom: 1.5rem;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.9rem;
-        }
-
-        code {
-            font-family: 'JetBrains Mono', monospace;
-            color: var(--accent-cyan);
-        }
-
-        /* Quiz Choice layout */
-        .quiz-container {
-            display: flex;
-            flex-direction: column;
-            gap: 1rem;
-            margin-top: 1.5rem;
-        }
-
-        .quiz-choice {
-            background: rgba(255, 255, 255, 0.03);
-            border: 1px solid var(--border-color-dark);
-            border-radius: 12px;
-            padding: 1.25rem;
-            cursor: pointer;
-            transition: all 0.2s;
-            text-align: left;
-            font-size: 1rem;
             font-weight: 500;
-            color: var(--text-main-dark);
-            display: flex;
-            align-items: center;
-            gap: 1rem;
+            color: var(--accent);
         }
 
-        .quiz-choice:hover {
-            background: rgba(255, 255, 255, 0.06);
-            border-color: var(--accent-blue);
-        }
-
-        .quiz-choice.correct {
-            background: rgba(0, 255, 135, 0.08) !important;
-            border-color: var(--success-glow) !important;
-            box-shadow: 0 0 15px rgba(0, 255, 135, 0.1);
-        }
-
-        .quiz-choice.incorrect {
-            background: rgba(255, 65, 108, 0.08) !important;
-            border-color: var(--error-glow) !important;
-            box-shadow: 0 0 15px rgba(255, 65, 108, 0.1);
-        }
-
-        .choice-badge {
-            width: 24px;
-            height: 24px;
-            border-radius: 50%;
-            border: 2px solid var(--text-muted-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 0.8rem;
-            font-weight: 700;
-            flex-shrink: 0;
-            transition: all 0.2s;
-        }
-
-        .quiz-choice:hover .choice-badge {
-            border-color: var(--accent-blue);
-        }
-
-        .quiz-choice.correct .choice-badge {
-            border-color: var(--success-glow);
-            background: var(--success-glow);
-            color: #0B0E14;
-        }
-
-        .quiz-choice.incorrect .choice-badge {
-            border-color: var(--error-glow);
-            background: var(--error-glow);
-            color: #fff;
-        }
-
-        .slide-footer {
-            margin-top: 2rem;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            border-top: 1px solid var(--border-color-dark);
-            padding-top: 1.5rem;
-        }
-
-        .control-btn {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            border: none;
-            color: #0B0E14;
-            padding: 0.75rem 2rem;
-            font-size: 1rem;
-            font-weight: 700;
-            border-radius: 10px;
-            cursor: pointer;
-            box-shadow: 0 4px 15px rgba(0, 242, 254, 0.25);
-            transition: all var(--transition-speed);
-        }
-
-        .control-btn:hover {
-            transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(0, 242, 254, 0.4);
-        }
-
-        .control-btn:disabled {
-            background: rgba(255, 255, 255, 0.08);
-            color: var(--text-muted-dark);
-            box-shadow: none;
-            cursor: not-allowed;
-            transform: none;
-        }
-
-        .feedback-message {
-            font-weight: 700;
-            font-size: 1.1rem;
-            display: flex;
-            align-items: center;
-            gap: 0.5rem;
-            opacity: 0;
-            transform: translateY(5px);
-            transition: all 0.3s ease;
-        }
-
-        .feedback-message.show {
-            opacity: 1;
-            transform: translateY(0);
-        }
-
-        .feedback-message.success {
-            color: var(--success-glow);
-        }
-
-        .feedback-message.error {
-            color: var(--error-glow);
-        }
-
-        /* ── Playground Transaction Simulator ── */
-        .playground-view {
-            background: var(--card-bg-dark);
-            border: 1px solid var(--border-color-dark);
-            border-radius: 20px;
-            padding: 2.5rem;
-            backdrop-filter: blur(15px);
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
-            animation: fadeIn 0.5s ease-in-out;
-        }
-
-        .playground-grid {
+        /* ── Layout Grid ── */
+        .workspace {
+            flex: 1;
             display: grid;
-            grid-template-columns: 1fr 1.2fr;
-            gap: 2rem;
-            margin-top: 1.5rem;
+            grid-template-columns: 320px 1fr;
+            height: calc(100vh - 71px);
         }
 
-        @media (max-width: 900px) {
-            .playground-grid {
+        @media (max-width: 1024px) {
+            .workspace {
                 grid-template-columns: 1fr;
+                height: auto;
             }
         }
 
-        .panel-header {
+        /* ── Sidebar (Roadmap & Lessons) ── */
+        .sidebar {
+            background: var(--bg-secondary);
+            border-right: 1px solid var(--border-color);
+            overflow-y: auto;
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        @media (max-width: 1024px) {
+            .sidebar {
+                border-right: none;
+                border-bottom: 1px solid var(--border-color);
+                max-height: 300px;
+            }
+        }
+
+        .sidebar-title {
+            font-family: var(--font-display);
+            font-size: 0.85rem;
             font-weight: 700;
-            margin-bottom: 1rem;
-            font-size: 1.1rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--text-muted);
+            margin-bottom: 0.5rem;
+        }
+
+        .roadmap-node {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            position: relative;
+        }
+
+        .roadmap-node:hover:not(.locked) {
+            border-color: var(--border-hover);
+            transform: translateX(4px);
+        }
+
+        .roadmap-node.active {
+            border-color: var(--accent);
+            box-shadow: 0 0 12px var(--accent-glow);
+        }
+
+        .roadmap-node.locked {
+            opacity: 0.45;
+            cursor: not-allowed;
+        }
+
+        .node-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
         }
 
-        textarea {
-            width: 100%;
-            height: 120px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--border-color-dark);
-            border-radius: 8px;
-            padding: 0.75rem;
-            color: #fff;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            resize: none;
-            margin-bottom: 1rem;
+        .node-index {
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-muted);
         }
 
-        textarea:focus {
-            outline: none;
-            border-color: var(--accent-cyan);
+        .roadmap-node.active .node-index {
+            color: var(--accent);
         }
 
-        .preset-btns {
-            display: flex;
-            gap: 0.75rem;
-            margin-bottom: 1.5rem;
+        .node-status-icon {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: var(--text-muted);
         }
 
-        .preset-btn {
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid var(--border-color-dark);
-            color: var(--text-main-dark);
-            padding: 0.5rem 1rem;
-            font-size: 0.85rem;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all 0.2s;
+        .roadmap-node.completed .node-status-icon {
+            background: var(--success);
+            box-shadow: 0 0 8px var(--success);
         }
 
-        .preset-btn:hover {
-            background: rgba(255, 255, 255, 0.08);
-            border-color: var(--accent-blue);
+        .roadmap-node.active .node-status-icon {
+            background: var(--accent);
+            box-shadow: 0 0 8px var(--accent);
         }
 
-        .pipeline-logs {
-            background: #07090D;
-            border: 1px solid rgba(255, 255, 255, 0.05);
-            border-radius: 12px;
-            padding: 1.25rem;
-            height: 350px;
+        .node-title {
+            font-family: var(--font-display);
+            font-size: 0.95rem;
+            font-weight: 600;
+            color: var(--text-primary);
+        }
+
+        .node-desc {
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            line-height: 1.4;
+        }
+
+        /* ── Content Pane ── */
+        .content-pane {
             overflow-y: auto;
-            font-family: 'JetBrains Mono', monospace;
-            font-size: 0.85rem;
-            color: var(--text-main-dark);
+            padding: 2.5rem;
             display: flex;
             flex-direction: column;
-            gap: 0.5rem;
+            gap: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
         }
 
-        .log-line {
-            display: flex;
-            gap: 0.5rem;
-            opacity: 0;
-            transform: translateX(-10px);
-            animation: slideIn 0.3s forwards;
-        }
-
-        .log-time {
-            color: var(--text-muted-dark);
-            flex-shrink: 0;
-        }
-
-        .log-tag {
-            color: var(--accent-cyan);
-            font-weight: bold;
-            flex-shrink: 0;
-        }
-
-        .log-msg {
-            color: #E2E8F0;
-        }
-
-        .log-msg.success {
-            color: var(--success-glow);
-        }
-
-        .log-msg.error {
-            color: var(--error-glow);
-        }
-
-        .visualizer-card {
-            background: rgba(0, 0, 0, 0.2);
-            border: 1px solid var(--border-color-dark);
-            border-radius: 12px;
-            padding: 1.5rem;
+        .slide-container {
             display: flex;
             flex-direction: column;
             gap: 1.5rem;
+            animation: slideIn 0.25s ease-out;
         }
 
-        .witness-badge-container {
-            display: flex;
-            justify-content: space-around;
-            margin: 1rem 0;
-        }
-
-        .witness-node {
+        .chapter-header {
             display: flex;
             flex-direction: column;
-            align-items: center;
             gap: 0.5rem;
-            opacity: 0.5;
-            transition: all 0.3s;
+            border-bottom: 1px solid var(--border-color);
+            padding-bottom: 1rem;
         }
 
-        .witness-node.active {
-            opacity: 1;
-            transform: scale(1.05);
-        }
-
-        .witness-indicator {
-            width: 48px;
-            height: 48px;
-            border-radius: 50%;
-            background: rgba(255, 255, 255, 0.05);
-            border: 2px solid var(--border-color-dark);
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            font-size: 1.2rem;
-            color: var(--text-muted-dark);
-            transition: all 0.3s;
-        }
-
-        .witness-node.active .witness-indicator {
-            background: linear-gradient(135deg, var(--accent-cyan), var(--accent-blue));
-            color: #0B0E14;
-            border-color: var(--success-glow);
-            box-shadow: 0 0 15px rgba(0, 242, 254, 0.4);
-        }
-
-        .witness-label {
+        .chapter-subtitle {
+            font-family: var(--font-mono);
             font-size: 0.8rem;
-            font-weight: 700;
+            font-weight: 600;
+            color: var(--accent);
             text-transform: uppercase;
         }
 
+        .chapter-title {
+            font-family: var(--font-display);
+            font-size: 2rem;
+            font-weight: 800;
+            letter-spacing: -0.5px;
+        }
+
+        /* ── Typography & Components ── */
+        p {
+            font-size: 1rem;
+            color: var(--text-secondary);
+            line-height: 1.7;
+        }
+
+        strong {
+            color: var(--text-primary);
+            font-weight: 600;
+        }
+
+        .analogy-card {
+            background: var(--bg-secondary);
+            border: 1px solid var(--border-color);
+            border-left: 4px solid var(--text-secondary);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+        }
+
+        .analogy-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--text-primary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 0.5rem;
+        }
+
+        .code-explanation {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+            margin-top: 1rem;
+        }
+
+        .explanation-line {
+            display: grid;
+            grid-template-columns: 180px 1fr;
+            gap: 1.5rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 0.75rem;
+            font-size: 0.85rem;
+        }
+
+        @media (max-width: 640px) {
+            .explanation-line {
+                grid-template-columns: 1fr;
+                gap: 0.25rem;
+            }
+        }
+
+        .explanation-key {
+            font-family: var(--font-mono);
+            color: var(--accent);
+            font-weight: 600;
+        }
+
+        .explanation-val {
+            color: var(--text-secondary);
+        }
+
+        .ask-why {
+            background: rgba(56, 189, 248, 0.03);
+            border: 1px solid rgba(56, 189, 248, 0.15);
+            border-radius: var(--radius-md);
+            padding: 1.5rem;
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .ask-why-title {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 0.95rem;
+            color: var(--accent);
+        }
+
+        .ask-why-q {
+            font-weight: 600;
+            color: var(--text-primary);
+            font-size: 0.95rem;
+        }
+
+        .ask-why-a {
+            font-size: 0.9rem;
+            color: var(--text-secondary);
+        }
+
+        /* ── Code Playground / Editor ── */
+        .editor-container {
+            display: flex;
+            flex-direction: column;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-lg);
+            background: #0D0E15;
+            overflow: hidden;
+            box-shadow: 0 12px 24px rgba(0, 0, 0, 0.35);
+        }
+
+        .editor-header {
+            background: #08090C;
+            border-bottom: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .editor-title {
+            font-family: var(--font-mono);
+            font-size: 0.8rem;
+            color: var(--text-secondary);
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        .editor-body {
+            display: flex;
+            position: relative;
+            min-height: 250px;
+        }
+
+        .line-numbers {
+            width: 45px;
+            padding: 1rem 0;
+            border-right: 1px solid var(--border-color);
+            text-align: right;
+            padding-right: 0.75rem;
+            color: var(--text-muted);
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            user-select: none;
+            background: #0A0B10;
+        }
+
+        .editor-textarea {
+            flex: 1;
+            background: none;
+            border: none;
+            resize: none;
+            padding: 1rem;
+            color: #E2E8F0;
+            font-family: var(--font-mono);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            outline: none;
+        }
+
+        .editor-footer {
+            background: #08090C;
+            border-top: 1px solid var(--border-color);
+            padding: 0.75rem 1.25rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .console-output {
+            background: #050608;
+            border-top: 1px solid var(--border-color);
+            padding: 1rem 1.25rem;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            min-height: 80px;
+            max-height: 160px;
+            overflow-y: auto;
+            color: var(--text-secondary);
+        }
+
+        .console-line {
+            margin-bottom: 0.25rem;
+            white-space: pre-wrap;
+        }
+
+        .console-line.success {
+            color: var(--success);
+        }
+
+        .console-line.error {
+            color: var(--error);
+        }
+
+        /* ── Interactive Quiz & Choices ── */
+        .quiz-box {
+            display: flex;
+            flex-direction: column;
+            gap: 1.25rem;
+            margin-top: 1rem;
+        }
+
+        .choice-item {
+            background: var(--panel-bg);
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            cursor: pointer;
+            transition: var(--transition);
+            display: flex;
+            align-items: flex-start;
+            gap: 1rem;
+            text-align: left;
+            width: 100%;
+        }
+
+        .choice-item:hover {
+            border-color: var(--border-hover);
+            background: rgba(255, 255, 255, 0.02);
+        }
+
+        .choice-bullet {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            border: 1px solid var(--text-muted);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: var(--font-mono);
+            font-size: 0.75rem;
+            font-weight: 700;
+            color: var(--text-secondary);
+            flex-shrink: 0;
+        }
+
+        .choice-item.correct {
+            background: var(--success-glow) !important;
+            border-color: var(--success) !important;
+        }
+
+        .choice-item.correct .choice-bullet {
+            background: var(--success);
+            border-color: var(--success);
+            color: var(--bg-primary);
+        }
+
+        .choice-item.incorrect {
+            background: var(--error-glow) !important;
+            border-color: var(--error) !important;
+        }
+
+        .choice-item.incorrect .choice-bullet {
+            background: var(--error);
+            border-color: var(--error);
+            color: var(--text-primary);
+        }
+
+        /* ── Controls & Actions ── */
+        .btn-group {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-top: 2rem;
+            border-top: 1px solid var(--border-color);
+            padding-top: 1.5rem;
+        }
+
+        .btn {
+            font-family: var(--font-display);
+            font-weight: 600;
+            font-size: 0.9rem;
+            padding: 0.6rem 1.5rem;
+            border-radius: var(--radius-sm);
+            cursor: pointer;
+            transition: var(--transition);
+            border: 1px solid transparent;
+        }
+
+        .btn-primary {
+            background: var(--text-primary);
+            color: var(--bg-primary);
+        }
+
+        .btn-primary:hover {
+            background: rgba(255, 255, 255, 0.9);
+        }
+
+        .btn-primary:disabled {
+            background: var(--border-color);
+            color: var(--text-muted);
+            cursor: not-allowed;
+        }
+
+        .btn-outline {
+            background: none;
+            border-color: var(--border-color);
+            color: var(--text-secondary);
+        }
+
+        .btn-outline:hover {
+            border-color: var(--border-hover);
+            color: var(--text-primary);
+        }
+
+        .btn-accent {
+            background: none;
+            border-color: var(--accent);
+            color: var(--accent);
+        }
+
+        .btn-accent:hover {
+            background: var(--accent-glow);
+        }
+
+        /* ── Code Display (read only) ── */
+        .code-block {
+            background: #0D0E15;
+            border: 1px solid var(--border-color);
+            border-radius: var(--radius-md);
+            padding: 1.25rem;
+            overflow-x: auto;
+            font-family: var(--font-mono);
+            font-size: 0.85rem;
+            color: #E2E8F0;
+        }
+
         /* Animations */
-        @keyframes fadeIn {
-            from { opacity: 0; transform: translateY(10px); }
+        @keyframes slideIn {
+            from { opacity: 0; transform: translateY(8px); }
             to { opacity: 1; transform: translateY(0); }
         }
 
-        @keyframes slideIn {
-            to { opacity: 1; transform: translateX(0); }
+        /* ── Dynamic Tab Panes ── */
+        .tab-pane {
+            display: none;
         }
 
-        /* ── Tab Switcher ── */
-        .tab-btn {
-            background: none;
-            border: none;
-            color: var(--text-muted-dark);
-            padding: 0.5rem 1.5rem;
-            font-size: 1rem;
-            font-weight: 600;
-            cursor: pointer;
-            border-bottom: 2px solid transparent;
-            transition: all var(--transition-speed);
+        .tab-pane.active {
+            display: block;
         }
 
-        .tab-btn.active {
-            color: var(--accent-cyan);
-            border-bottom-color: var(--accent-cyan);
+        /* ── Sandbox Panel ── */
+        .sandbox-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+            height: 100%;
         }
 
-        .tab-btn:hover {
-            color: #fff;
+        @media (max-width: 900px) {
+            .sandbox-layout {
+                grid-template-columns: 1fr;
+            }
         }
     </style>
 </head>
 <body>
 
     <header>
-        <div class="logo-container">
-            <div class="logo-icon">C</div>
-            <div class="logo-text">CONNEX Academy</div>
-        </div>
-        <nav style="display: flex; gap: 1rem;">
-            <button class="tab-btn active" onclick="switchView('dashboard')">Roadmap</button>
-            <button class="tab-btn" onclick="switchView('playground')">Transaction Lab</button>
+        <a href="#" class="logo-group">
+            <!-- Custom Vector "Cx" Logo drawn exactly from user image -->
+            <svg class="logo-svg" width="32" height="32" viewBox="0 0 100 100" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <!-- Circular C -->
+                <path d="M 68 28 A 38 38 0 1 0 68 72" stroke="currentColor" stroke-width="12" stroke-linecap="round" />
+                <!-- Intersection X -->
+                <path d="M 72 38 L 90 56 M 90 38 L 72 56" stroke="currentColor" stroke-width="12" stroke-linecap="round" />
+            </svg>
+            <span class="logo-title">CONNEX Developer Academy</span>
+        </a>
+        <nav class="nav-tabs">
+            <button class="tab-trigger active" onclick="setTab('academy')">Academy Course</button>
+            <button class="tab-trigger" onclick="setTab('sandbox')">Code Lab Sandbox</button>
         </nav>
-        <div class="stats-bar">
-            <div class="stat-item">
-                🏆 Score: <span class="highlight" id="user-score">0</span> XP
-            </div>
-            <div class="stat-item">
-                Progress: <div class="xp-bar-container"><div class="xp-bar-fill" id="xp-bar"></div></div>
-            </div>
+        <div class="progress-stats">
+            <div class="xp-count" id="xp-display">0 XP</div>
         </div>
     </header>
 
-    <main>
-        <!-- ── DASHBOARD VIEW ── -->
-        <div id="dashboard-view" class="dashboard-view">
-            <div class="welcome-hero">
-                <h1>Interactive Payments Coordination & Auditing</h1>
-                <p>Learn core concepts of distributed quorum coordination, transactional integrity, and compliance auditing in an interactive SoloLearn sandbox.</p>
+    <div class="workspace">
+        <!-- ── SIDEBAR ROADMAP ── -->
+        <aside class="sidebar">
+            <div class="sidebar-title">Study Roadmap</div>
+            <div id="roadmap-nodes-box" style="display: flex; flex-direction: column; gap: 0.75rem;">
+                <!-- Dynamically loaded roadmap nodes -->
             </div>
+        </aside>
+
+        <!-- ── MAIN CONTENT WORKSPACE ── -->
+        <main style="overflow-y: auto; background-color: var(--bg-primary); width: 100%;">
             
-            <div class="roadmap-container">
-                <div class="roadmap-line"></div>
-                
-                <!-- Chapter 1 -->
-                <div class="node-card left" onclick="startChapter(1)">
-                    <div class="node-icon-wrapper">📥</div>
-                    <div class="node-content">
-                        <h3>Chapter 1: Ingestion & Parsing</h3>
-                        <p>Learn how raw ISO 8583 payment messages are parsed and decoded safely.</p>
-                        <div class="node-status" id="node-status-1">▶️ Start (100 XP)</div>
-                    </div>
-                </div>
-
-                <!-- Chapter 2 -->
-                <div class="node-card right" id="chapter-node-2" onclick="startChapter(2)">
-                    <div class="node-badge">2-of-3 Quorum</div>
-                    <div class="node-icon-wrapper">🤝</div>
-                    <div class="node-content">
-                        <h3>Chapter 2: Quorum Architecture</h3>
-                        <p>Understand the distributed consensus model and witness validation nodes.</p>
-                        <div class="node-status" id="node-status-2">🔒 Locked</div>
-                    </div>
-                </div>
-
-                <!-- Chapter 3 -->
-                <div class="node-card left" id="chapter-node-3" onclick="startChapter(3)">
-                    <div class="node-icon-wrapper">🔗</div>
-                    <div class="node-content">
-                        <h3>Chapter 3: Coordination Hash Chain</h3>
-                        <p>Dive into tamper-proof append-only databases and hash linkages.</p>
-                        <div class="node-status" id="node-status-3">🔒 Locked</div>
-                    </div>
-                </div>
-
-                <!-- Chapter 4 -->
-                <div class="node-card right" id="chapter-node-4" onclick="startChapter(4)">
-                    <div class="node-badge">IP & Compliance</div>
-                    <div class="node-icon-wrapper">🛡️</div>
-                    <div class="node-content">
-                        <h3>Chapter 4: Security & Audit Compliance</h3>
-                        <p>How to protect repositories from leaked credentials and open-source lawsuits.</p>
-                        <div class="node-status" id="node-status-4">🔒 Locked</div>
-                    </div>
+            <!-- ACADEMY TAB PANE -->
+            <div id="academy-pane" class="tab-pane active">
+                <div class="content-pane" id="slide-content-pane">
+                    <!-- Dynamic Slide content gets loaded here -->
                 </div>
             </div>
-        </div>
 
-        <!-- ── LESSON / SLIDE VIEW ── -->
-        <div id="lesson-view" class="lesson-view">
-            <div class="lesson-header">
-                <button class="back-btn" onclick="exitLesson()">← Back to Roadmap</button>
-                <div class="slide-progress" id="slide-progress-text">Slide 1 / 4</div>
-            </div>
-            
-            <div class="slide-card">
-                <div id="slide-content-area" class="slide-content">
-                    <!-- Dynamic Slide Content Inserted Here -->
-                </div>
-                
-                <div class="slide-footer">
-                    <div id="feedback-area" class="feedback-message"></div>
-                    <button class="control-btn" id="next-btn" onclick="nextSlide()">Continue</button>
-                </div>
-            </div>
-        </div>
+            <!-- SANDBOX TAB PANE -->
+            <div id="sandbox-pane" class="tab-pane" style="padding: 2.5rem; height: 100%;">
+                <div class="sandbox-layout">
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <h2 class="chapter-title" style="font-size: 1.5rem; margin-bottom: 0.5rem;">Interactive Go Lab Sandbox</h2>
+                        <p style="font-size: 0.9rem; margin-bottom: 1rem;">Write, edit, and test custom Go syntax patterns directly in this sandbox interface. Use the dropdown to load lesson templates and verify outputs.</p>
+                        
+                        <div style="margin-bottom: 1rem; display: flex; gap: 1rem; align-items: center;">
+                            <label style="font-size: 0.85rem; color: var(--text-secondary);">Load Template:</label>
+                            <select id="sandbox-template-select" onchange="loadSandboxTemplate()" style="background: var(--bg-secondary); border: 1px solid var(--border-color); color: var(--text-primary); padding: 0.4rem 0.8rem; border-radius: var(--radius-sm); outline: none;">
+                                <option value="hello">Hello World (Chapter 1)</option>
+                                <option value="pointer">Pointers (Chapter 2)</option>
+                                <option value="struct">Struct JSON Tags (Chapter 3)</option>
+                                <option value="errors">Custom Error Check (Chapter 6)</option>
+                                <option value="concurrency">Channels & Select (Chapter 7)</option>
+                            </select>
+                        </div>
 
-        <!-- ── PLAYGROUND VIEW (TRANSACTION SIMULATOR) ── -->
-        <div id="playground-view" class="playground-view" style="display: none;">
-            <div class="welcome-hero" style="margin: 0 auto 2rem auto;">
-                <h1>Transaction Coordination Simulator</h1>
-                <p>Ingest a mock ISO 8583 wire transfer, enrich it into ISO 20022 XML, collect witness signatures, and write to the append-only ledger.</p>
-            </div>
-            
-            <div class="playground-grid">
-                <div class="visualizer-card">
-                    <div class="panel-header">
-                        <span>Raw Ingestion (Base64 ISO 8583)</span>
-                        <span style="font-size: 0.85rem; color: var(--accent-cyan);">MTI: 0200</span>
-                    </div>
-                    
-                    <div class="preset-btns">
-                        <button class="preset-btn" onclick="loadPreset('kes')">KES 5,000 Transfer</button>
-                        <button class="preset-btn" onclick="loadPreset('usd')">USD 120 (Non-KES)</button>
-                        <button class="preset-btn" onclick="loadPreset('invalid')">Invalid Payload</button>
-                    </div>
-                    
-                    <textarea id="raw-payload-input" placeholder="Paste Base64 message here..."></textarea>
-                    
-                    <button class="control-btn" onclick="runSimulatedCoordinate()" style="width: 100%;">
-                        Coordinate Transaction
-                    </button>
-                    
-                    <div style="margin-top: 1rem;">
-                        <h4 style="margin-bottom: 0.5rem; font-size: 0.9rem;">Witness Status Dashboard</h4>
-                        <div class="witness-badge-container">
-                            <div class="witness-node" id="w-node-1">
-                                <div class="witness-indicator">A</div>
-                                <span class="witness-label">Alpha</span>
+                        <div class="editor-container">
+                            <div class="editor-header">
+                                <div class="editor-title">main.go</div>
+                                <button class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;" onclick="resetSandboxCode()">Reset</button>
                             </div>
-                            <div class="witness-node" id="w-node-2">
-                                <div class="witness-indicator">B</div>
-                                <span class="witness-label">Beta</span>
+                            <div class="editor-body">
+                                <div class="line-numbers" id="sandbox-line-numbers">
+                                    1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12
+                                </div>
+                                <textarea class="editor-textarea" id="sandbox-textarea" spellcheck="false" oninput="updateLineNumbers('sandbox-textarea', 'sandbox-line-numbers')"></textarea>
                             </div>
-                            <div class="witness-node" id="w-node-3">
-                                <div class="witness-indicator">G</div>
-                                <span class="witness-label">Gamma</span>
+                            <div class="editor-footer">
+                                <div style="font-size: 0.75rem; color: var(--text-muted);">Interactive compiler simulator</div>
+                                <button class="btn btn-primary" onclick="runSandboxCode()">Run Program</button>
                             </div>
                         </div>
                     </div>
-                </div>
-                
-                <div class="visualizer-card">
-                    <div class="panel-header">
-                        <span>Pipeline Coordination logs</span>
-                        <span style="font-size: 0.85rem; color: var(--text-muted-dark);">Real-time</span>
-                    </div>
-                    
-                    <div class="pipeline-logs" id="pipeline-logs-box">
-                        <div class="log-line">
-                            <span class="log-time">[00:00:00]</span>
-                            <span class="log-tag">SYSTEM</span>
-                            <span class="log-msg">Ready to coordinate transactions. Select a preset or input payload.</span>
+
+                    <div style="display: flex; flex-direction: column; gap: 1rem;">
+                        <h3 class="chapter-title" style="font-size: 1.1rem; border-bottom: 1px solid var(--border-color); padding-bottom: 0.5rem; margin-top: 1rem;">Execution Console Log</h3>
+                        <div class="pipeline-logs" id="sandbox-console-box" style="background: #050608; border: 1px solid var(--border-color); border-radius: var(--radius-md); padding: 1.25rem; height: 350px; overflow-y: auto; font-family: var(--font-mono); font-size: 0.85rem; color: var(--text-secondary);">
+                            <div class="console-line">Ready to execute code...</div>
                         </div>
                     </div>
                 </div>
             </div>
-        </div>
-    </main>
 
-    <!-- Web Audio API Synth logic for sound feedback -->
+        </main>
+    </div>
+
+    <!-- Web Audio API Synth Engine for gamified chimes -->
     <script>
         const audioCtx = new (window.AudioContext || window.webkitAudioContext)();
         
-        function playChime(correct) {
+        function playFeedbackSound(success) {
             if (audioCtx.state === 'suspended') {
                 audioCtx.resume();
             }
@@ -944,199 +765,479 @@
             
             const now = audioCtx.currentTime;
             
-            if (correct) {
-                // Correct chime: Two sweet notes going up
-                osc.frequency.setValueAtTime(523.25, now); // C5
-                osc.frequency.setValueAtTime(659.25, now + 0.1); // E5
-                gainNode.gain.setValueAtTime(0.1, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.35);
+            if (success) {
+                // Correct chime: ascending, clean sine wave
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(587.33, now); // D5
+                osc.frequency.setValueAtTime(880.00, now + 0.08); // A5
+                gainNode.gain.setValueAtTime(0.08, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.3);
                 osc.start(now);
                 osc.stop(now + 0.35);
             } else {
-                // Incorrect: low buzz sliding down
-                osc.type = 'sawtooth';
-                osc.frequency.setValueAtTime(120, now);
-                osc.frequency.linearRampToValueAtTime(80, now + 0.25);
-                gainNode.gain.setValueAtTime(0.12, now);
-                gainNode.gain.exponentialRampToValueAtTime(0.01, now + 0.25);
+                // Error buzz: low square/saw wave sliding down
+                osc.type = 'triangle';
+                osc.frequency.setValueAtTime(140, now);
+                osc.frequency.linearRampToValueAtTime(90, now + 0.2);
+                gainNode.gain.setValueAtTime(0.1, now);
+                gainNode.gain.exponentialRampToValueAtTime(0.001, now + 0.2);
                 osc.start(now);
-                osc.stop(now + 0.25);
+                osc.stop(now + 0.22);
             }
         }
     </script>
 
-    <!-- Data Course Structure & Logic -->
+    <!-- Comprehensive Course Curriculum Data (embedded from GO_COURSE.md) -->
     <script>
         const courseData = {
             1: {
-                title: "Chapter 1: Ingestion & Parsing",
+                title: "Packages & Imports",
+                subtitle: "Chapter 1",
+                description: "Understand the structure of Go source files and libraries.",
                 slides: [
                     {
                         type: "content",
-                        title: "The Problem of Legacy Settlement",
+                        title: "The Kitchen Analogy",
                         html: `
-                            <p>Traditional banking networks use legacy protocols like <strong>ISO 8583</strong>. These messages are composed of flat raw byte buffers, often BCD-encoded, to maximize speed over ancient transmission lines.</p>
-                            <p>Because they lack rich semantic context (regulatory codes, specific transaction purposes), systems suffer from <strong>settlement opacity</strong>. This triggers high dispute rates and manual compliance overhead.</p>
-                            <div class="alert-box">
-                                <strong>CONNEX Invariant:</strong> To resolve this, the Gateway intercepts these raw messages and transforms them into modern, context-rich <strong>ISO 20022</strong> formats.
+                            <p>Imagine you are a head chef setting up a new restaurant kitchen:</p>
+                            <div class="analogy-card">
+                                <div class="analogy-title">The Analogy</div>
+                                <p><strong>1. Declaring the kitchen:</strong> "This is the MAIN kitchen, which produces the actual meals, not a prep room that just chops onions."</p>
+                                <p><strong>2. Gathering your tools:</strong> You need a knife, a pot, a timer, and a scale from the storage closet.</p>
+                            </div>
+                            <p>In Go, every program does the exact same thing:</p>
+                            <p><strong>package main</strong> = "This is the main kitchen." It tells the compiler: "This code is a runnable program. This is where the application starts."</p>
+                            <p><strong>import (...)</strong> = "Gathering our tools." It tells the compiler: "We need tools from the standard library storage closet."</p>
+                        `
+                    },
+                    {
+                        type: "content",
+                        title: "The Go Standard Library",
+                        html: `
+                            <p>Go comes with a built-in pantry of pre-made toolboxes called the <strong>Standard Library</strong>. You do not need to write utility tools from scratch; you just import them:</p>
+                            <pre class="code-block"><code>// cmd/witness/main.go
+package main
+
+import (
+    "crypto/ed25519"   // Cryptographic signatures (verifying bank identity)
+    "crypto/rand"      // Cryptographic random generator (for generating keys)
+    "crypto/sha256"    // SHA-256 hashing (creating secure fingerprints of data)
+    "encoding/base64"  // Converts binary bytes into readable text like "SGVsbG8="
+    "fmt"              // Prints text to the screen (formatted print)
+    "time"             // Calculates dates, times, and timeouts
+)</code></pre>
+                            <div class="ask-why">
+                                <div class="ask-why-title">Ask Why?</div>
+                                <div class="ask-why-q">Why does Go refuse to compile if you import a package and never use it?</div>
+                                <div class="ask-why-a">Unused imports slow down compile times and bloat the final binary file. More importantly, in bank security, every unused line of code represents a potential surface area for bugs or security leaks. Go prevents this at the compiler stage!</div>
                             </div>
                         `
                     },
                     {
-                        type: "content",
-                        title: "Parsing ISO 8583 in Go",
-                        html: `
-                            <p>ISO 8583 messages consist of a 4-digit Message Type Identifier (MTI) and a 64-bit primary bitmap specifying which data fields are present in the stream.</p>
-                            <pre><code>// internal/iso8583/parser.go
-func Parse(raw []byte) (*Message, error) {
-    if len(raw) &lt; 12 {
-        return nil, fmt.Errorf("message too short")
-    }
-    // Read MTI
-    mti := string(raw[0:4])
-    // Read bitmap to scan active fields...
-}</code></pre>
-                            <p>The parser dynamically extracts values depending on alignment definitions (Fixed length vs variable length e.g. LLVAR or LLLVAR).</p>
-                        `
-                    },
-                    {
-                        type: "quiz",
-                        title: "Concept Check: ISO 8583 Standard",
-                        question: "Why do legacy payment messages like ISO 8583 cause high compliance friction in modern banking?",
-                        choices: [
-                            "They are strictly binary and cannot be read by computers.",
-                            "They lack rich semantic structure and regulatory reporting context.",
-                            "They do not support numeric transaction fields.",
-                            "They require high-speed fiber-optic lines to transmit."
-                        ],
-                        correctIndex: 1
+                        type: "coding",
+                        title: "Write Your First Go Program",
+                        task: "Complete this basic Go program to print a status check to the console. Declares 'main' package, import 'fmt' and 'time', and complete the main function.",
+                        template: `package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    // 1. Print "CONNEX Witness — Online"
+    fmt.Println("CONNEX Witness — Online")
+    
+    // 2. Print "Current time:" followed by time.Now()
+    fmt.Println("Current time:", time.Now())
+}`,
+                        validate: function(code) {
+                            if (!code.includes("package main")) return { ok: false, msg: "Missing 'package main'" };
+                            if (!code.includes('"fmt"')) return { ok: false, msg: "Missing 'fmt' import" };
+                            if (!code.includes('"time"')) return { ok: false, msg: "Missing 'time' import" };
+                            if (!code.includes("func main()")) return { ok: false, msg: "Missing main function declaration" };
+                            if (!code.includes("CONNEX Witness — Online")) return { ok: false, msg: "Missing print string 'CONNEX Witness — Online'" };
+                            if (!code.includes("time.Now()")) return { ok: false, msg: "Missing clock call 'time.Now()'" };
+                            return { ok: true, msg: "CONNEX Witness — Online\nCurrent time: 2026-06-02 00:15:30.12456 UTC\n\n=== Build Successful ===" };
+                        }
                     }
                 ]
             },
             2: {
-                title: "Chapter 2: Quorum Architecture",
+                title: "Variables, Memory & Encoding",
+                subtitle: "Chapter 2",
+                description: "Memory drawers, data types, slices, and binary BCD formats.",
                 slides: [
                     {
                         type: "content",
-                        title: "Witness Verification Model",
+                        title: "Memory Drawers (Variables)",
                         html: `
-                            <p>To eliminate centralized point-of-failure vulnerabilities, CONNEX implements a <strong>Distributed Quorum Architecture</strong>.</p>
-                            <p>The Gateway does not sign or validate transactions on its own. Instead, it relies on three independent <strong>Witness Nodes</strong> (Alpha, Beta, and Gamma), each managing its own Ed25519 cryptographic keypair.</p>
-                            <div class="alert-box">
-                                <strong>Quorum Policy:</strong> At least <strong>2 out of 3</strong> witnesses must successfully return verified signatures on the coordination hash to approve the transaction.
+                            <p>Inside your computer is <strong>RAM</strong> (Random Access Memory), which acts as the computer's short-term memory.</p>
+                            <p>Imagine RAM as a massive warehouse filled with numbered storage drawers. Each drawer has a unique number stamped on it (its <strong>Memory Address</strong>).</p>
+                            <p>Writing code would be extremely tedious if we had to reference drawers by numbers (like "put 100 in box #1024"). Instead, we use <strong>Variables</strong>—human-friendly labels taped onto the drawers.</p>
+                            <pre class="code-block"><code>bankName := "Equity"  // Tells Go to find a drawer, tape "bankName" on it, and insert the text value.</code></pre>
+                            <p>Go supports two key operators:
+                            <br>• <strong>:=</strong> (Create & Assign): Creates a new variable drawer.
+                            <br>• <strong>=</strong> (Reassign): Replaces the value in an existing drawer.</p>
+                        `
+                    },
+                    {
+                        type: "content",
+                        title: "Pointers & Addresses",
+                        html: `
+                            <p>A <strong>Pointer</strong> is a variable that does not store actual data. Instead, it stores the <strong>Memory Address</strong> (the drawer number) of another variable.</p>
+                            <p>Think of it as a paper card with a drawer number written on it:</p>
+                            <p>• <strong>&</strong> (Address-of): Returns the drawer number where a variable is stored.</p>
+                            <p>• <strong>*</strong> (Dereference): Follows the address on the card, opens that drawer, and lets you read or overwrite the value inside.</p>
+                            <div class="analogy-card">
+                                <div class="analogy-title">Why Use Pointers?</div>
+                                <p>By default, Go copies all variables when passing them to functions. For large structures, copying consumes memory and CPU. Passing an 8-byte pointer card is virtually instantaneous.</p>
                             </div>
                         `
                     },
                     {
                         type: "content",
-                        title: "Witness Communication",
+                        title: "Packed BCD vs ASCII",
                         html: `
-                            <p>When the Gateway computes the transaction fingerprint, it distributes signing requests in parallel to all witness nodes over HTTP POST endpoints.</p>
-                            <pre><code>// cmd/gateway/main.go
-func collectSignatures(witnesses []string, hashBytes []byte) []SignatureEntry {
-    ch := make(chan result, len(witnesses))
-    for _, w := range witnesses {
-        go func() {
-            sig, err := requestSignature(w, hashBytes)
-            ch &lt;- result{sig, err}
-        }()
-    }
-    // Collect with a tight 150ms timeout...
-}</code></pre>
-                            <p>Using Go channels ensures the main routing thread never blocks indefinitely on slow witness nodes.</p>
+                            <p>Legacy systems transmit numbers over credit networks using <strong>BCD (Binary Coded Decimal)</strong> to minimize network bandwidth.</p>
+                            <p>• <strong>ASCII:</strong> Each digit takes 1 byte (8 bits). The number 12 takes 2 bytes.</p>
+                            <p>• <strong>BCD:</strong> Since digits 0-9 only need 4 bits of space, we can pack 2 digits into a single byte by splitting it into two 4-bit halves (nibbles).</p>
+                            <p>We use bit shifting in Go to decode high and low nibbles:</p>
+                            <pre class="code-block"><code>digit1 := b >> 4     // Shift bits right by 4 to get high nibble
+digit2 := b & 0x0F   // Mask with 00001111 to get low nibble</code></pre>
                         `
                     },
                     {
-                        type: "quiz",
-                        title: "Concept Check: Quorum Policy",
-                        question: "What is the primary benefit of a 2-of-3 witness consensus policy in a payment system?",
-                        choices: [
-                            "It speeds up transaction throughput by running multiple database queries.",
-                            "It ensures the system remains fully functional and secure even if one witness is down or compromised.",
-                            "It automatically encrypts the data using AES-256.",
-                            "It blocks transactions that have large amounts."
-                        ],
-                        correctIndex: 1
+                        type: "coding",
+                        title: "Pointer Interaction Session",
+                        task: "Complete the Go code to change the value of 'balance' to 65000.20 using the pointer 'p'. Then print the updated value.",
+                        template: `package main
+
+import "fmt"
+
+func main() {
+    balance := 50000.75
+    
+    // 1. Declare p as a pointer to balance
+    var p *float64 = &balance
+    
+    // 2. Dereference p to change balance value to 65000.20
+    *p = 65000.20
+    
+    fmt.Printf("Updated balance: %.2f\\n", balance)
+}`,
+                        validate: function(code) {
+                            if (!code.includes("p = &balance") && !code.includes("p := &balance")) return { ok: false, msg: "Did you declare p pointing to balance?" };
+                            if (!code.includes("*p = 65000.20") && !code.includes("*p=65000.20")) return { ok: false, msg: "Did you modify balance using the dereference operator (*p)?" };
+                            return { ok: true, msg: "Updated balance: 65000.20\n\n=== Build Successful ===" };
+                        }
                     }
                 ]
             },
             3: {
-                title: "Chapter 3: Coordination Hash Chain",
+                title: "Structs & JSON Tags",
+                subtitle: "Chapter 3",
+                description: "Defining record layouts, public/private fields, and JSON tags.",
                 slides: [
                     {
                         type: "content",
-                        title: "The Coordination Hash",
+                        title: "Defining Structures (Forms)",
                         html: `
-                            <p>To prevent transactions from being modified retroactively, CONNEX seals every event into an unbroken hash chain.</p>
-                            <p>The <strong>Coordination Hash</strong> acts as the unique cryptographic identifier for the event, computed as:</p>
-                            <pre><code>chainHash = SHA-256(originalHash + enrichedHash + prevChainHash)</code></pre>
-                            <p>If any historical transaction is altered, its enriched hash changes, invalidating every downstream chain hash in the ledger.</p>
+                            <p>A single banking transaction contains multiple related pieces of data (Amount, Currency, Timestamp). Keeping these in separate variables is dangerous.</p>
+                            <p>A <strong>Struct</strong> is a custom compound data type that acts like a blank paper form. We layout the fields once, and fill out instances of it.</p>
+                            <pre class="code-block"><code>type SignatureEntry struct {
+    Witness     string ` + "`json:\"witness\"`" + `
+    Fingerprint string ` + "`json:\"fingerprint\"`" + `
+    Signature   string ` + "`json:\"signature\"`" + `
+}</code></pre>
+                            <p><strong>Visibility Rule:</strong> Struct fields starting with a capital letter are <strong>Public</strong> (accessible externally). Fields starting with a lowercase letter are <strong>Private</strong> (locked inside their package).</p>
                         `
                     },
                     {
                         type: "content",
-                        title: "Append-Only SQL Triggers",
+                        title: "Memory: Stack vs Heap",
                         html: `
-                            <p>To secure the database ledger, SQLite triggers block modifications at the database engine level. This makes data corruption or alteration impossible, even if the database layer is accessed directly.</p>
-                            <pre><code>-- internal/storage/schema.sql
-CREATE TRIGGER no_update
-BEFORE UPDATE ON coordination_events
-BEGIN
-    SELECT RAISE(ABORT, 'coordination_events is append-only: UPDATE rejected');
-END;</code></pre>
-                            <div class="alert-box warning">
-                                <strong>Immutable Rule:</strong> Triggers block both <code>UPDATE</code> and <code>DELETE</code> operations, making the record permanently audit-safe.
-                            </div>
+                            <p>When you allocate structs, Go decides where to place them in memory:</p>
+                            <p>• <strong>The Stack:</strong> Extremely fast access. Local to the function execution. Erased as soon as the function returns.</p>
+                            <p>• <strong>The Heap:</strong> Spacious storage pantry. Variables survive function termination. Accessed using pointers. Slower to clean up (requires Go's Garbage Collector).</p>
                         `
                     },
                     {
-                        type: "quiz",
-                        title: "Concept Check: Chain and Triggers",
-                        question: "If a database administrator attempts to manually run 'DELETE FROM coordination_events' on the database, what will occur?",
-                        choices: [
-                            "The database will delete the records and recalculate the hashes.",
-                            "The execution will succeed but log an alert in the audit log.",
-                            "The transaction will abort and reject the query due to the database trigger.",
-                            "The database file will become corrupted."
-                        ],
-                        correctIndex: 2
+                        type: "coding",
+                        title: "JSON Marshalling Lab",
+                        task: "Complete the SystemConfig struct. Bind the public fields Port (int) and DBPath (string) to the JSON tags 'port' and 'db_path'. Keep secretToken (string) private.",
+                        template: `package main
+
+import (
+    "encoding/json"
+    "fmt"
+)
+
+type SystemConfig struct {
+    // Write your fields here
+    Port        int    \`json:"port"\`
+    DBPath      string \`json:"db_path"\`
+    secretToken string
+}
+
+func main() {
+    config := SystemConfig{Port: 8080, DBPath: "data/connex.db", secretToken: "TOKEN"}
+    b, _ := json.Marshal(config)
+    fmt.Println(string(b))
+}`,
+                        validate: function(code) {
+                            if (!code.includes("Port") || !code.includes("`json:\"port\"`")) return { ok: false, msg: "Did you declare public field Port with correct JSON tag?" };
+                            if (!code.includes("DBPath") || !code.includes("`json:\"db_path\"`")) return { ok: false, msg: "Did you declare public field DBPath with correct JSON tag?" };
+                            if (code.includes("SecretToken") || code.includes("secretToken string `")) return { ok: false, msg: "secretToken must remain private (lowercase) and have no struct tag!" };
+                            return { ok: true, msg: `{"port":8080,"db_path":"data/connex.db"}\n\n=== Build Successful ===` };
+                        }
                     }
                 ]
             },
             4: {
-                title: "Chapter 4: Security & Audit Compliance",
+                title: "Functions & Scope",
+                subtitle: "Chapter 4",
+                description: "Input parameters, multiple returns, blank identifier, and scope.",
                 slides: [
                     {
                         type: "content",
-                        title: "Secret Leakage & Repository Hygiene",
+                        title: "Functional Recipes",
                         html: `
-                            <p>Payment systems must guard against code leaks and vulnerabilities to avoid devastating intellectual property and compliance lawsuits.</p>
-                            <div class="alert-box warning">
-                                <strong>Critical Risk: Leaking Secrets</strong><br>
-                                Committing raw cryptographic private keys (like <code>.key</code> files) to a repository can allow attackers to spoof nodes. Under regulatory frameworks, this negligence can trigger multi-million dollar class-action lawsuits.
-                            </div>
-                            <p>Always add credentials, certificates, and mock environment settings to <code>.gitignore</code> and use dynamic generation or hardware security modules (HSM) in production.</p>
+                            <p>A <strong>Function</strong> is a reusable recipe that takes inputs (parameters), executes code inside its body, and returns outputs (return values).</p>
+                            <pre class="code-block"><code>func sha256Hex(data []byte) string {
+    h := sha256.Sum256(data)
+    return hex.EncodeToString(h[:])
+}</code></pre>
+                            <p><strong>Pass-by-Value Invariant:</strong> Go always passes values by copying them. If you hand a large struct to a function, Go copies the whole struct. To prevent copying overhead, pass a pointer instead.</p>
                         `
                     },
                     {
                         type: "content",
-                        title: "Software Licensing & Disclaimers",
+                        title: "Multiple Returns & The Underscore",
                         html: `
-                            <p>When sharing code, the presence of a formal <strong>LICENSE</strong> file is not optional. A standard license (like Apache 2.0) contains critical legal disclaimers:</p>
-                            <pre><code>Disclaimer of Warranty: Licensor provides the Work on an "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND...
-Limitation of Liability: In no event shall any Contributor be liable for damages...</code></pre>
-                            <p>These clauses prevent developers from being sued for damages if users run the software and suffer monetary loss.</p>
+                            <p>Go functions can return multiple values. This is commonly used in Go to return data along with error status flags.</p>
+                            <pre class="code-block"><code>pub, priv, err := generateKeys()</code></pre>
+                            <p>If you don't need one of the values, you must discard it using the **Blank Identifier** (<code>_</code>) to avoid compiler errors for unused variables:</p>
+                            <pre class="code-block"><code>pub, _, err := generateKeys() // Discards private key</code></pre>
+                        `
+                    },
+                    {
+                        type: "coding",
+                        title: "Create a Net Calculator",
+                        task: "Write the calculateFee function to calculate a 2% commission fee. The function must accept a float64 amount, and return two float64 values: the fee, and the remaining net amount.",
+                        template: `package main
+
+import "fmt"
+
+const CommissionRate = 0.02
+
+// Write calculateFee function here
+func calculateFee(amount float64) (float64, float64) {
+    fee := amount * CommissionRate
+    return fee, amount - fee
+}
+
+func main() {
+    fee, net := calculateFee(50000.00)
+    fmt.Printf("Fee: %.2f, Net: %.2f\\n", fee, net)
+}`,
+                        validate: function(code) {
+                            if (!code.includes("calculateFee(amount float64) (float64, float64)") && !code.includes("calculateFee(amount float64)(float64,float64)")) {
+                                return { ok: false, msg: "Ensure the function signature accepts float64 and returns (float64, float64)." };
+                            }
+                            return { ok: true, msg: "Fee: 1000.00, Net: 49000.00\n\n=== Build Successful ===" };
+                        }
+                    }
+                ]
+            },
+            5: {
+                title: "Methods & Receivers",
+                subtitle: "Chapter 5",
+                description: "Binding functions to structs, value receivers, and mutating state.",
+                slides: [
+                    {
+                        type: "content",
+                        title: "Attaching Actions to Structs",
+                        html: `
+                            <p>A **Method** is simply a function that belongs to a specific struct form. It has access to the fields of that struct using a prefix argument called the <strong>Receiver</strong>.</p>
+                            <pre class="code-block"><code>// The receiver (m *Message) binds the method to the Message struct
+func (m *Message) AmountKES() float64 {
+    s := m.Fields[4]
+    n, _ := strconv.ParseInt(s, 10, 64)
+    return float64(n) / 100.0
+}</code></pre>
+                            <p>• <strong>Value Receiver:</strong> The method gets a copy of the struct. It cannot modify the original fields (Read-Only).</p>
+                            <p>• <strong>Pointer Receiver:</strong> The method gets the memory address of the struct. It can edit the original fields directly (Read-Write).</p>
+                        `
+                    },
+                    {
+                        type: "coding",
+                        title: "Account Mutation Method",
+                        task: "Add a Withdraw method to the BankAccount struct using a pointer receiver. It must deduct the amount from Balance if funds are sufficient and return true. If insufficient, do not alter Balance and return false.",
+                        template: `package main
+
+import "fmt"
+
+type BankAccount struct {
+    AccountHolder string
+    Balance       float64
+}
+
+// Write the Withdraw method here
+func (a *BankAccount) Withdraw(amount float64) bool {
+    if a.Balance < amount {
+        return false
+    }
+    a.Balance -= amount
+    return true
+}
+
+func main() {
+    acc := &BankAccount{AccountHolder: "John Doe", Balance: 500.00}
+    ok := acc.Withdraw(200.00)
+    fmt.Printf("Success: %t, Balance: %.2f\\n", ok, acc.Balance)
+}`,
+                        validate: function(code) {
+                            if (!code.includes("func (a *BankAccount) Withdraw(amount float64) bool") && !code.includes("func (a *BankAccount)Withdraw(amount float64)bool")) {
+                                return { ok: false, msg: "Ensure you use a pointer receiver (*BankAccount) for the Withdraw method." };
+                            }
+                            return { ok: true, msg: "Success: true, Balance: 300.00\n\n=== Build Successful ===" };
+                        }
+                    }
+                ]
+            },
+            6: {
+                title: "Error Handling & Wrapping",
+                subtitle: "Chapter 6",
+                description: "Sentinel errors, error interface, error wrapping (%w), and file permissions.",
+                slides: [
+                    {
+                        type: "content",
+                        title: "Explicit Failures",
+                        html: `
+                            <p>Go does not have runtime try/catch exceptions. Errors are handled as ordinary return values. We check them immediately following execution.</p>
+                            <pre class="code-block"><code>file, err := os.Open("config.json")
+if err != nil {
+    return fmt.Errorf("could not load configurations: %w", err)
+}</code></pre>
+                            <p><strong>Error Wrapping (%w):</strong> We wrap low-level errors inside contextual high-level errors to preserve logging trace integrity.
+                            <br>• <code>errors.Is(err, target)</code>: Check if any error in the wrapped chain matches a target.
+                            <br>• <code>errors.As(err, &targetStruct)</code>: Checks for custom error structures and extracts their fields.</p>
+                        `
+                    },
+                    {
+                        type: "coding",
+                        title: "Build Custom Error Validation",
+                        task: "Complete the custom error implementation for FundError. It must implement the error interface by declaring an Error() string method returning 'insufficient funds'.",
+                        template: `package main
+
+import "fmt"
+
+type FundError struct {
+    Required  float64
+    Available float64
+}
+
+// 1. Implement Error() string for *FundError
+func (e *FundError) Error() string {
+    return "insufficient funds"
+}
+
+func main() {
+    var err error = &FundError{Required: 100, Available: 50}
+    fmt.Println(err.Error())
+}`,
+                        validate: function(code) {
+                            if (!code.includes("func (e *FundError) Error() string") && !code.includes("func (e *FundError)Error() string")) {
+                                return { ok: false, msg: "Make sure FundError implements the error contract interface." };
+                            }
+                            return { ok: true, msg: "insufficient funds\n\n=== Build Successful ===" };
+                        }
+                    }
+                ]
+            },
+            7: {
+                title: "Goroutines & Channels",
+                subtitle: "Chapter 7",
+                description: "Lightweight background threads, message tubes, select statements, and timeouts.",
+                slides: [
+                    {
+                        type: "content",
+                        title: "Background Assistants",
+                        html: `
+                            <p>We can launch concurrent background threads in Go using the **go** keyword in front of any function execution.</p>
+                            <p>To safely share data between threads without race conditions, Go uses **Channels** (pneumatic message tubes).</p>
+                            <pre class="code-block"><code>ch := make(chan string) // Unbuffered
+ch <- "signed"          // Sends block until a receiver is ready
+msg := <-ch             // Receives block until data is sent</code></pre>
+                            <p><strong>Select statements:</strong> Multi-channel monitors. Combined with <code>time.After</code> to enforce execution timeouts:</p>
+                            <pre class="code-block"><code>select {
+case r := <-ch:
+    // Process response
+case <-time.After(150 * time.Millisecond):
+    // Timeout error fallback
+}</code></pre>
+                        `
+                    },
+                    {
+                        type: "coding",
+                        title: "Channel Timeout Simulator",
+                        task: "Write a select block that receives a string from the 'response' channel, or times out after 100 milliseconds.",
+                        template: `package main
+
+import (
+    "fmt"
+    "time"
+)
+
+func main() {
+    response := make(chan string)
+    
+    go func() {
+        time.Sleep(50 * time.Millisecond)
+        response <- "Approved"
+    }()
+
+    select {
+    case msg := <-response:
+        fmt.Println("Received:", msg)
+    case <-time.After(100 * time.Millisecond):
+        fmt.Println("Timeout!")
+    }
+}`,
+                        validate: function(code) {
+                            if (!code.includes("case msg := <-response:") && !code.includes("case msg:=<-response:")) return { ok: false, msg: "Missing select case for receiving from response channel." };
+                            if (!code.includes("time.After")) return { ok: false, msg: "Missing timeout case using time.After." };
+                            return { ok: true, msg: "Received: Approved\n\n=== Build Successful ===" };
+                        }
+                    }
+                ]
+            },
+            8: {
+                title: "Full Code Walkthrough",
+                subtitle: "Chapter 8",
+                description: "Analyze the sequence of transaction processing, locks, and WAL databases.",
+                slides: [
+                    {
+                        type: "content",
+                        title: "The Architecture Sequence",
+                        html: `
+                            <p>Let's map out the final transaction coordination cycle across the core system files:</p>
+                            <p><strong>1. Gateway Ingests:</strong> Translates incoming base64 messages in <code>cmd/gateway/main.go</code>.</p>
+                            <p><strong>2. Mutex Sequence:</strong> Acquires <code>g.mu.Lock()</code> to guarantee linear ordering of states without parallel chain branching.</p>
+                            <p><strong>3. Witness Notarizes:</strong> Hits witness nodes in parallel, verifying their Ed25519 signatures inside <code>collectSignatures</code>.</p>
+                            <p><strong>4. SQLite Persistence:</strong> Writes event logs using parameterized SQL variables to block SQL injections. Append-only triggers block modifications at database level.</p>
                         `
                     },
                     {
                         type: "quiz",
-                        title: "Concept Check: Legal Auditing",
-                        question: "What is the legal purpose of a 'Limitation of Liability' clause in a project's LICENSE file?",
+                        title: "Final Check: CONNEX Security Invariant",
+                        question: "Why does the Gateway use a sync.Mutex lock before calculating the coordination hash?",
                         choices: [
-                            "It forbids third parties from modifying the source code.",
-                            "It shields the software developers from lawsuits if a user incurs damages or financial losses from running the software.",
-                            "It guarantees the software has zero security vulnerabilities.",
-                            "It registers the software as a patent with the government."
+                            "To encrypt the transaction payload.",
+                            "To prevent multiple transactions from executing in parallel and causing hash chain forks.",
+                            "To shut down witness nodes during database maintenance.",
+                            "To bypass XML schema validation."
                         ],
                         correctIndex: 1
                     }
@@ -1144,341 +1245,317 @@ Limitation of Liability: In no event shall any Contributor be liable for damages
             }
         };
 
-        // User State
-        let userXP = 0;
-        let completedChapters = {
-            1: false,
-            2: false,
-            3: false,
-            4: false
-        };
-        
-        // Active Lesson State
-        let currentChapterId = null;
-        let currentSlideIndex = 0;
-        let currentSelectedAnswer = null;
+        // User persistent progress tracking
+        let userXP = parseInt(localStorage.getItem('connex_xp') || '0');
+        let completedNodes = JSON.parse(localStorage.getItem('connex_completed') || '{"1":false,"2":false,"3":false,"4":false,"5":false,"6":false,"7":false,"8":false}');
 
-        // Initialize App
+        let activeChapterId = 1;
+        let activeSlideIndex = 0;
+        let activeSelectedAnswer = null;
+
+        // Initialize UI on load
         updateXPDisplay();
+        loadRoadmapNodes();
+        loadActiveSlide();
+
+        function setTab(tabName) {
+            document.querySelectorAll('.tab-trigger').forEach(trigger => trigger.classList.remove('active'));
+            document.querySelectorAll('.tab-pane').forEach(pane => pane.classList.remove('active'));
+            
+            document.querySelector(`button[onclick="setTab('${tabName}')"]`).classList.add('active');
+            document.getElementById(`${tabName}-pane`).classList.add('active');
+        }
 
         function updateXPDisplay() {
-            document.getElementById('user-score').innerText = userXP;
-            
-            // Progress Bar calculation
-            let totalChapters = 4;
-            let finishedCount = Object.values(completedChapters).filter(v => v).length;
-            let percentage = (finishedCount / totalChapters) * 100;
-            document.getElementById('xp-bar').style.width = percentage + '%';
+            document.getElementById('xp-display').innerText = `${userXP} XP`;
+            localStorage.setItem('connex_xp', userXP);
+            localStorage.setItem('connex_completed', JSON.stringify(completedNodes));
         }
 
-        function switchView(viewName) {
-            document.querySelectorAll('main > div').forEach(div => {
-                div.style.display = 'none';
-            });
-            document.querySelectorAll('.tab-btn').forEach(btn => {
-                btn.classList.remove('active');
-            });
+        function loadRoadmapNodes() {
+            const nodesBox = document.getElementById('roadmap-nodes-box');
+            nodesBox.innerHTML = '';
             
-            if (viewName === 'dashboard') {
-                document.getElementById('dashboard-view').style.display = 'flex';
-                document.querySelector('button[onclick="switchView(\'dashboard\')"]').classList.add('active');
-            } else if (viewName === 'playground') {
-                document.getElementById('playground-view').style.display = 'block';
-                document.querySelector('button[onclick="switchView(\'playground\')"]').classList.add('active');
+            for (let i = 1; i <= 8; i++) {
+                const node = courseData[i];
+                const isLocked = i > 1 && !completedNodes[i - 1];
+                const isCompleted = completedNodes[i];
+                const isActive = i === activeChapterId;
+                
+                let nodeClass = "roadmap-node";
+                if (isLocked) nodeClass += " locked";
+                if (isActive) nodeClass += " active";
+                if (isCompleted) nodeClass += " completed";
+                
+                const clickHandler = isLocked ? "" : `onclick="selectChapter(${i})"`;
+                
+                nodesBox.innerHTML += `
+                    <div class="${nodeClass}" ${clickHandler}>
+                        <div class="node-header">
+                            <span class="node-index">Chapter ${i}</span>
+                            <div class="node-status-icon"></div>
+                        </div>
+                        <div class="node-title">${node.title}</div>
+                        <div class="node-desc">${node.description}</div>
+                    </div>
+                `;
             }
         }
 
-        function startChapter(chapterId) {
-            if (chapterId > 1 && !completedChapters[chapterId - 1]) {
-                alert("Chapter locked! Complete previous chapters first.");
-                return;
-            }
-            
-            currentChapterId = chapterId;
-            currentSlideIndex = 0;
-            
-            document.getElementById('dashboard-view').style.display = 'none';
-            document.getElementById('lesson-view').style.display = 'block';
-            
-            loadSlide();
+        function selectChapter(chapterId) {
+            activeChapterId = chapterId;
+            activeSlideIndex = 0;
+            loadRoadmapNodes();
+            loadActiveSlide();
         }
 
-        function exitLesson() {
-            document.getElementById('lesson-view').style.display = 'none';
-            document.getElementById('dashboard-view').style.display = 'flex';
-        }
-
-        function loadSlide() {
-            const chapter = courseData[currentChapterId];
-            const slide = chapter.slides[currentSlideIndex];
+        function loadActiveSlide() {
+            const chapter = courseData[activeChapterId];
+            const slide = chapter.slides[activeSlideIndex];
+            const pane = document.getElementById('slide-content-pane');
             
-            document.getElementById('slide-progress-text').innerText = `Slide ${currentSlideIndex + 1} / ${chapter.slides.length}`;
+            activeSelectedAnswer = null;
             
-            const contentArea = document.getElementById('slide-content-area');
-            const feedbackArea = document.getElementById('feedback-area');
-            feedbackArea.className = 'feedback-message';
-            feedbackArea.innerHTML = '';
-            
-            currentSelectedAnswer = null;
-            
-            let htmlContent = `<h2>${slide.title}</h2>`;
+            let html = `
+                <div class="slide-container">
+                    <div class="chapter-header">
+                        <span class="chapter-subtitle">${chapter.subtitle} — Slide ${activeSlideIndex + 1} of ${chapter.slides.length}</span>
+                        <h1 class="chapter-title">${slide.title}</h1>
+                    </div>
+            `;
             
             if (slide.type === "content") {
-                htmlContent += slide.html;
-                document.getElementById('next-btn').innerText = "Continue";
-                document.getElementById('next-btn').disabled = false;
+                html += `
+                    ${slide.html}
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="prevSlide()" ${activeSlideIndex === 0 ? "disabled" : ""}>Previous</button>
+                        <button class="btn btn-primary" onclick="nextSlide()">Continue</button>
+                    </div>
+                `;
+                pane.innerHTML = html;
             } else if (slide.type === "quiz") {
-                htmlContent += `<p>${slide.question}</p><div class="quiz-container">`;
-                slide.choices.forEach((choice, idx) => {
-                    htmlContent += `
-                        <button class="quiz-choice" onclick="selectChoice(${idx})">
-                            <div class="choice-badge">${String.fromCharCode(65 + idx)}</div>
-                            <span>${choice}</span>
+                html += `
+                    <p style="margin-bottom: 1.5rem;">${slide.question}</p>
+                    <div class="quiz-box">
+                `;
+                slide.choices.forEach((choice, index) => {
+                    html += `
+                        <button class="choice-item" id="choice-${index}" onclick="selectQuizChoice(${index})">
+                            <div class="choice-bullet">${String.fromCharCode(65 + index)}</div>
+                            <span style="font-weight: 500;">${choice}</span>
                         </button>
                     `;
                 });
-                htmlContent += `</div>`;
-                document.getElementById('next-btn').innerText = "Submit Answer";
-                document.getElementById('next-btn').disabled = true;
+                html += `
+                    </div>
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="prevSlide()" ${activeSlideIndex === 0 ? "disabled" : ""}>Previous</button>
+                        <button class="btn btn-primary" id="quiz-submit-btn" onclick="submitQuizAnswer()" disabled>Submit Answer</button>
+                    </div>
+                `;
+                pane.innerHTML = html;
+            } else if (slide.type === "coding") {
+                html += `
+                    <p style="margin-bottom: 1.5rem;"><strong>Exercise Task:</strong> ${slide.task}</p>
+                    
+                    <div class="editor-container">
+                        <div class="editor-header">
+                            <div class="editor-title">exercise.go</div>
+                            <button class="btn btn-outline" style="padding: 0.3rem 0.8rem; font-size: 0.75rem;" onclick="resetExerciseCode()">Reset</button>
+                        </div>
+                        <div class="editor-body">
+                            <div class="line-numbers" id="exercise-line-numbers">
+                                1<br>2<br>3<br>4<br>5<br>6<br>7<br>8<br>9<br>10<br>11<br>12
+                            </div>
+                            <textarea class="editor-textarea" id="exercise-textarea" spellcheck="false" oninput="updateLineNumbers('exercise-textarea', 'exercise-line-numbers')">${slide.template}</textarea>
+                        </div>
+                        <div class="editor-footer">
+                            <div style="font-size: 0.75rem; color: var(--text-muted);">Verify compile correctness</div>
+                            <button class="btn btn-accent" onclick="runExerciseCode()">Compile & Run</button>
+                        </div>
+                    </div>
+
+                    <div class="console-output" id="exercise-console">
+                        <div class="console-line">Ready to compile...</div>
+                    </div>
+
+                    <div class="btn-group">
+                        <button class="btn btn-outline" onclick="prevSlide()" ${activeSlideIndex === 0 ? "disabled" : ""}>Previous</button>
+                        <button class="btn btn-primary" id="coding-continue-btn" onclick="nextSlide()" disabled>Continue</button>
+                    </div>
+                `;
+                pane.innerHTML = html;
+                updateLineNumbers('exercise-textarea', 'exercise-line-numbers');
             }
-            
-            contentArea.innerHTML = htmlContent;
         }
 
-        function selectChoice(choiceIndex) {
-            const slide = courseData[currentChapterId].slides[currentSlideIndex];
-            if (currentSelectedAnswer !== null) return; // Answer already submitted
+        function selectQuizChoice(index) {
+            if (activeSelectedAnswer !== null) return; // Answer already submitted
             
-            const choices = document.querySelectorAll('.quiz-choice');
-            choices.forEach((choice, idx) => {
-                choice.classList.remove('selected');
-                if (idx === choiceIndex) {
-                    choice.style.borderColor = 'var(--accent-cyan)';
-                    choice.style.background = 'rgba(255, 255, 255, 0.05)';
-                } else {
-                    choice.style.borderColor = 'var(--border-color-dark)';
-                    choice.style.background = 'rgba(255, 255, 255, 0.02)';
-                }
+            document.querySelectorAll('.choice-item').forEach(item => {
+                item.style.borderColor = "var(--border-color)";
+                item.style.background = "var(--panel-bg)";
             });
             
-            currentSelectedAnswer = choiceIndex;
-            document.getElementById('next-btn').disabled = false;
+            const selected = document.getElementById(`choice-${index}`);
+            selected.style.borderColor = "var(--accent)";
+            
+            activeSelectedAnswer = index;
+            document.getElementById('quiz-submit-btn').disabled = false;
+        }
+
+        function submitQuizAnswer() {
+            const slide = courseData[activeChapterId].slides[activeSlideIndex];
+            const selectedItem = document.getElementById(`choice-${activeSelectedAnswer}`);
+            
+            if (activeSelectedAnswer === slide.correctIndex) {
+                selectedItem.classList.add('correct');
+                playFeedbackSound(true);
+                userXP += 100;
+                updateXPDisplay();
+                document.getElementById('quiz-submit-btn').innerText = "Continue";
+                document.getElementById('quiz-submit-btn').onclick = nextSlide;
+            } else {
+                selectedItem.classList.add('incorrect');
+                document.getElementById(`choice-${slide.correctIndex}`).classList.add('correct');
+                playFeedbackSound(false);
+                document.getElementById('quiz-submit-btn').disabled = true;
+                setTimeout(() => {
+                    loadActiveSlide();
+                }, 1800);
+            }
+        }
+
+        function resetExerciseCode() {
+            const slide = courseData[activeChapterId].slides[activeSlideIndex];
+            document.getElementById('exercise-textarea').value = slide.template;
+            document.getElementById('exercise-console').innerHTML = '<div class="console-line">Ready to compile...</div>';
+            updateLineNumbers('exercise-textarea', 'exercise-line-numbers');
+        }
+
+        function runExerciseCode() {
+            const slide = courseData[activeChapterId].slides[activeSlideIndex];
+            const code = document.getElementById('exercise-textarea').value;
+            const res = slide.validate(code);
+            const consoleBox = document.getElementById('exercise-console');
+            
+            if (res.ok) {
+                consoleBox.innerHTML = `<div class="console-line success">${res.msg}</div>`;
+                playFeedbackSound(true);
+                userXP += 150;
+                updateXPDisplay();
+                document.getElementById('coding-continue-btn').disabled = false;
+            } else {
+                consoleBox.innerHTML = `<div class="console-line error"># compile failed\n${res.msg}</div>`;
+                playFeedbackSound(false);
+            }
+        }
+
+        function prevSlide() {
+            if (activeSlideIndex > 0) {
+                activeSlideIndex--;
+                loadActiveSlide();
+            }
         }
 
         function nextSlide() {
-            const chapter = courseData[currentChapterId];
-            const slide = chapter.slides[currentSlideIndex];
-            
-            if (slide.type === "quiz" && document.getElementById('next-btn').innerText === "Submit Answer") {
-                // Validate quiz answer
-                const choices = document.querySelectorAll('.quiz-choice');
-                const feedbackArea = document.getElementById('feedback-area');
-                
-                if (currentSelectedAnswer === slide.correctIndex) {
-                    choices[currentSelectedAnswer].classList.add('correct');
-                    feedbackArea.className = 'feedback-message success show';
-                    feedbackArea.innerHTML = '✨ Correct! +100 XP';
-                    playChime(true);
-                    userXP += 100;
-                    updateXPDisplay();
-                } else {
-                    choices[currentSelectedAnswer].classList.add('incorrect');
-                    choices[slide.correctIndex].classList.add('correct');
-                    feedbackArea.className = 'feedback-message error show';
-                    feedbackArea.innerHTML = '❌ Incorrect. Try again!';
-                    playChime(false);
-                }
-                
-                document.getElementById('next-btn').innerText = "Continue";
-                return;
-            }
-            
-            // Advance slide
-            currentSlideIndex++;
-            
-            if (currentSlideIndex < chapter.slides.length) {
-                loadSlide();
+            const chapter = courseData[activeChapterId];
+            if (activeSlideIndex < chapter.slides.length - 1) {
+                activeSlideIndex++;
+                loadActiveSlide();
             } else {
-                // Chapter finished!
-                completedChapters[currentChapterId] = true;
-                unlockNextChapter(currentChapterId);
-                exitLesson();
+                // Completed Chapter
+                completedNodes[activeChapterId] = true;
+                if (activeChapterId < 8) {
+                    activeChapterId++;
+                    activeSlideIndex = 0;
+                }
+                loadRoadmapNodes();
+                loadActiveSlide();
                 updateXPDisplay();
             }
         }
 
-        function unlockNextChapter(chapterId) {
-            const nextId = chapterId + 1;
-            const statusEl = document.getElementById(`node-status-${chapterId}`);
-            if (statusEl) {
-                statusEl.innerText = "⭐ Completed";
-                statusEl.style.color = "var(--success-glow)";
-            }
+        function updateLineNumbers(textareaId, numbersId) {
+            const textarea = document.getElementById(textareaId);
+            const numBox = document.getElementById(numbersId);
+            const linesCount = textarea.value.split('\n').length;
             
-            const nextNode = document.getElementById(`chapter-node-${nextId}`);
-            if (nextNode) {
-                nextNode.classList.remove('locked');
-                const nextStatus = document.getElementById(`node-status-${nextId}`);
-                nextStatus.innerText = "▶️ Start (100 XP)";
-                nextStatus.style.color = "var(--accent-cyan)";
+            let linesHTML = '';
+            for (let i = 1; i <= Math.max(linesCount, 12); i++) {
+                linesHTML += i + '<br>';
             }
+            numBox.innerHTML = linesHTML;
         }
 
-        // Preset transactional payloads
-        const presets = {
-            kes: "TURJPTIwMCxGND0wMDAwMDAwMDUwMDAsRjQ5PTQwNCxGMz0wMTAxMDAsRjE4PTU0MTEsRjMyPTExMTExMSxGMzM9MjIyMjIyLEYxMDI9MTIzNDU2Nzg5LEYxMDM9OTg3NjU0MzIx",
-            usd: "TURJPTIwMCxGND0wMDAwMDAwMTIwMDAsRjQ5PTg0MCxGMz0wMTAxMDAsRjE4PTU4MTIsRjMyPTExMTExMSxGMzM9MTExMTExLEYxMDI9OTk5OTk5OTk5LEYxMDM9ODg4ODg4ODg4",
-            invalid: "TURJPTEyMzQsRjQ9YWJj"
+        /* ── Sandbox Compile Simulator logic ── */
+        const sandboxTemplates = {
+            hello: `package main\n\nimport "fmt"\n\nfunc main() {\n    fmt.Println("Welcome to the CONNEX Go Lab!")\n}`,
+            pointer: `package main\n\nimport "fmt"\n\nfunc main() {\n    count := 10\n    ptr := &count\n    fmt.Println("Address:", ptr)\n    fmt.Println("Value:", *ptr)\n}`,
+            struct: `package main\n\nimport (\n    "encoding/json"\n    "fmt"\n)\n\ntype Asset struct {\n    Name  string \`json:"asset_name"\`\n    Value int    \`json:"asset_value"\`\n}\n\nfunc main() {\n    a := Asset{Name: "Witness Key", Value: 250}\n    b, _ := json.Marshal(a)\n    fmt.Println(string(b))\n}`,
+            errors: `package main\n\nimport (\n    "errors"\n    "fmt"\n)\n\nfunc main() {\n    err := errors.New("database locked")\n    wrapped := fmt.Errorf("read failed: %w", err)\n    fmt.Println("Error:", wrapped)\n    fmt.Println("Is target?", errors.Is(wrapped, err))\n}`,
+            concurrency: `package main\n\nimport (\n    "fmt"\n    "time"\n)\n\nfunc main() {\n    ch := make(chan string, 1)\n    ch <- "Signal"\n    \n    select {\n    case m := <-ch:\n        fmt.Println("Channel message:", m)\n    case <-time.After(100 * time.Millisecond):\n        fmt.Println("Timeout")\n    }\n}`
         };
 
-        function loadPreset(presetKey) {
-            document.getElementById('raw-payload-input').value = presets[presetKey];
+        function loadSandboxTemplate() {
+            const key = document.getElementById('sandbox-template-select').value;
+            document.getElementById('sandbox-textarea').value = sandboxTemplates[key];
+            updateLineNumbers('sandbox-textarea', 'sandbox-line-numbers');
         }
 
-        // Simulate core coordination steps
-        function runSimulatedCoordinate() {
-            const inputVal = document.getElementById('raw-payload-input').value.trim();
-            const logsBox = document.getElementById('pipeline-logs-box');
+        function resetSandboxCode() {
+            loadSandboxTemplate();
+        }
+
+        function runSandboxCode() {
+            const code = document.getElementById('sandbox-textarea').value;
+            const consoleBox = document.getElementById('sandbox-console-box');
             
-            // Reset visual active witness states
-            document.querySelectorAll('.witness-node').forEach(node => node.classList.remove('active'));
+            consoleBox.innerHTML = '<div class="console-line">Initializing build environment...</div>';
             
-            logsBox.innerHTML = '';
-            
-            if (!inputVal) {
-                writeLog("SYSTEM", "Error: Input payload empty.", "error");
-                return;
-            }
-            
-            let timeOffset = 100;
-            
-            function scheduleLog(tag, msg, style, fn) {
-                setTimeout(() => {
-                    writeLog(tag, msg, style);
-                    if (fn) fn();
-                }, timeOffset);
-                timeOffset += 600;
-            }
-            
-            scheduleLog("INGESTION", "Received POST /v1/coordinate. Decoding Base64 ISO 8583 payload...");
-            
-            // Simulate Decode
-            try {
-                const decoded = atob(inputVal);
-                scheduleLog("PARSER", `Successfully decoded. Message details: ${decoded}`);
-                
-                // Parse key fields (simulated parsing)
-                const fields = {};
-                decoded.split(',').forEach(part => {
-                    const kv = part.split('=');
-                    fields[kv[0]] = kv[1];
-                });
-                
-                const mti = fields['MTI'] || 'Unknown';
-                const amount = parseInt(fields['F4'] || '0') / 100;
-                const currency = fields['F49'] || '404';
-                const mcc = fields['F18'] || 'Unknown';
-                
-                scheduleLog("PARSER", `Detected Message Type Identifier (MTI): ${mti}. Fields count: ${Object.keys(fields).length}`);
-                
-                // Run Rules
-                scheduleLog("RULES ENGINE", `Running rules.yaml rules for mcc=${mcc}, currency=${currency}...`);
-                
-                let ruleId = "DEFAULT";
-                let purposeCode = "GDDS";
-                let regulatoryReporting = "100";
-                
-                if (mcc === "5411") {
-                    ruleId = "MCC_5411_GROCERY";
-                    purposeCode = "GDSV";
-                    regulatoryReporting = "120";
-                } else if (mcc === "5812") {
-                    ruleId = "MCC_5812_DINING";
-                    purposeCode = "REST";
-                    regulatoryReporting = "150";
+            setTimeout(() => {
+                // Simulate Go compiler verification parser rules
+                if (!code.includes("package main")) {
+                    consoleBox.innerHTML += '<div class="console-line error"># compile failed\nmain.go:1:1: expected \'package\', found \'EOF\'</div>';
+                    playFeedbackSound(false);
+                    return;
                 }
                 
-                scheduleLog("RULES ENGINE", `Matched enrichment Rule ID: ${ruleId}. Purpose set to ${purposeCode}.`);
-                
-                // XML assembler
-                scheduleLog("ASSEMBLER", `Generating pacs.008.001.08 XML document. Validating schema constraints...`);
-                
-                const xmlTemplate = `
-&lt;Document xmlns="urn:iso:std:iso:20022:tech:xsd:pacs.008.001.08"&gt;
-  &lt;GrpHdr&gt;
-    &lt;MsgId&gt;CX-SIMULATOR-${Date.now()}&lt;/MsgId&gt;
-    &lt;SttlmInf&gt;&lt;SttlmMtd&gt;CLRG&lt;/SttlmMtd&gt;&lt;/SttlmInf&gt;
-  &lt;/GrpHdr&gt;
-  &lt;CdtTrfTxInf&gt;
-    &lt;IntrBkSttlmAmt Ccy="${currency === '840' ? 'USD' : 'KES'}"&gt;${amount.toFixed(2)}&lt;/IntrBkSttlmAmt&gt;
-    &lt;PmtTpInf&gt;&lt;CtgyPurp&gt;&lt;Cd&gt;${purposeCode}&lt;/Cd&gt;&lt;/CtgyPurp&gt;&lt;/PmtTpInf&gt;
-  &lt;/CdtTrfTxInf&gt;
-&lt;/Document&gt;`.trim();
+                if (code.includes("import") && !code.includes('"')) {
+                    consoleBox.innerHTML += '<div class="console-line error"># compile failed\nmain.go:3:8: imports must be string literals (double quoted)</div>';
+                    playFeedbackSound(false);
+                    return;
+                }
 
-                scheduleLog("ASSEMBLER", `XML Output schema well-formed and valid.`, "success");
-                
-                // Hash link
-                const origHash = "SHA256_ORIG_" + Math.random().toString(36).substring(7);
-                const enrichedHash = "SHA256_ENR_" + Math.random().toString(36).substring(7);
-                const prevHash = "SHA256_PREV_" + Math.random().toString(36).substring(7);
-                const coordHash = "SHA256_COORD_" + Math.random().toString(36).substring(7);
-                
-                scheduleLog("CRYPTO", `Computed coordination hash: ${coordHash.substring(0, 16)}...`);
-                
-                // Query Witnesses
-                scheduleLog("QUORUM", `Dispatching parallel signatures to witness nodes...`);
-                
-                setTimeout(() => {
-                    document.getElementById('w-node-1').classList.add('active');
-                    writeLog("WITNESS ALPHA", "Signature verified (Ed25519 public key fingerprint: Alpha-fp12)", "success");
-                }, timeOffset + 200);
-                
-                setTimeout(() => {
-                    document.getElementById('w-node-2').classList.add('active');
-                    writeLog("WITNESS BETA", "Signature verified (Ed25519 public key fingerprint: Beta-fp34)", "success");
-                }, timeOffset + 400);
+                if (!code.includes("func main()")) {
+                    consoleBox.innerHTML += '<div class="console-line error"># compile failed\nruntime: main function undeclared in package main</div>';
+                    playFeedbackSound(false);
+                    return;
+                }
 
-                setTimeout(() => {
-                    document.getElementById('w-node-3').classList.add('active');
-                    writeLog("WITNESS GAMMA", "Signature verified (Ed25519 public key fingerprint: Gamma-fp56)", "success");
-                }, timeOffset + 600);
-
-                timeOffset += 800;
+                // Simulate execution outputs based on contents
+                let out = "=== Run Executable ===\n";
+                if (code.includes("Welcome to the CONNEX Go Lab!")) {
+                    out += "Welcome to the CONNEX Go Lab!\n";
+                } else if (code.includes("ptr :=") && code.includes("*ptr")) {
+                    out += "Address: 0xc0000180a0\nValue: 10\n";
+                } else if (code.includes("json.Marshal")) {
+                    out += '{"asset_name":"Witness Key","asset_value":250}\n';
+                } else if (code.includes("errors.Is")) {
+                    out += "Error: read failed: database locked\nIs target? true\n";
+                } else if (code.includes("Channel message:")) {
+                    out += "Channel message: Signal\n";
+                } else {
+                    out += "Program completed successfully (no console outputs printed).\n";
+                }
                 
-                scheduleLog("QUORUM", `3 of 3 signatures gathered successfully. Quorum met. Status: QUORUM_MET`, "success");
-                
-                // Write to SQLite
-                scheduleLog("DATABASE", `Writing Event Ledger bundle to SQLite. Executing INSERT statement...`);
-                scheduleLog("DATABASE", `Ledger update complete. Trigger checked: Insert accepted (append-only safe).`, "success");
-                
-                // Return Success
-                scheduleLog("SYSTEM", `Coordination success. Status: 200 OK. Returns Proof Bundle JSON.`, "success");
-                
-            } catch (e) {
-                scheduleLog("SYSTEM", `Failed to parse base64 payload. Reason: ${e.message}`, "error");
-            }
+                consoleBox.innerHTML = `<div class="console-line success">${out}</div>`;
+                playFeedbackSound(true);
+            }, 600);
         }
 
-        function writeLog(tag, msg, style) {
-            const logsBox = document.getElementById('pipeline-logs-box');
-            const now = new Date().toLocaleTimeString();
-            
-            const logLine = document.createElement('div');
-            logLine.className = 'log-line';
-            
-            let messageStyle = 'log-msg';
-            if (style === 'success') messageStyle += ' success';
-            if (style === 'error') messageStyle += ' error';
-            
-            logLine.innerHTML = `
-                <span class="log-time">[${now}]</span>
-                <span class="log-tag">${tag}</span>
-                <span class="${messageStyle}">${msg}</span>
-            `;
-            
-            logsBox.appendChild(logLine);
-            logsBox.scrollTop = logsBox.scrollHeight;
-        }
+        // Load first template initially
+        loadSandboxTemplate();
     </script>
 </body>
 </html>
