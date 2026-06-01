@@ -1,0 +1,19 @@
+# Secrets and environment variables
+.env
+.env.*
+.env.local
+
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+
+# Build and IDE files
+dist/
+build/
+.claude/
+.gemini/
+.antigravity/
+.vscode/
+.idea/
+*.log
