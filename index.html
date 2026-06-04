@@ -945,6 +945,7 @@
                 <button class="tab-btn" onclick="switchTab('foundations')">Foundations</button>
                 <button class="tab-btn" onclick="switchTab('disciplines')">The 8 Disciplines</button>
                 <button class="tab-btn" onclick="switchTab('pipeline')">The Absolute Pipeline</button>
+                <button class="tab-btn" onclick="switchTab('mvp')">Connex MVP</button>
                 <button class="tab-btn" onclick="switchTab('antigravity')">Driving Agent</button>
                 <button class="tab-btn" onclick="switchTab('dictionary')">Web Dictionary</button>
                 <button class="tab-btn" onclick="switchTab('kit')">Prompt Templates</button>
@@ -1232,6 +1233,218 @@ graph TD
                     <li>Inspect the execution log file at <code>C:\Users\roych\.gemini\antigravity\scratch\</code>.</li>
                     <li>Only copy the finalized code to your active directories once the sandbox tests have been verified green.</li>
                 </ol>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: CONNEX MVP -->
+        <div id="tab-mvp" class="chapter-container">
+            <div class="chapter-header">
+                <h2>Connex Reference MVP Architecture</h2>
+                <p>A production-ready reference blueprint for a neutral, cryptographic coordination layer coordinating parallel witness signatures and ISO 20022 data enrichment.</p>
+            </div>
+
+            <!-- Sequence Diagram Card -->
+            <div class="card">
+                <h3>Transaction Lifecycle & Parallel Signing <span>Execution Sequence</span></h3>
+                <p>This sequence outlines how the Go-based gateway ingests legacy banking switch payloads, deterministically synthesizes enriched XML schemas, computes hash chains, coordinates parallel blind signatures from three witness nodes, and commits events to append-only SQLite storage.</p>
+                <div class="mermaid-container">
+                    <pre class="mermaid">
+sequenceDiagram
+    autonumber
+    actor Bank as Core Banking / Switch
+    participant GW as Connex Gateway (Go)
+    participant DB as Append-Only Storage (SQLite)
+    participant W as Witness Nodes (x3)
+    participant HSM as Hardware Security Module (KMS/HSM)
+    
+    Note over Bank, GW: 1. INGRESS & PARSING
+    Bank->>GW: POST /v1/coordinate (Base64 ISO 8583 / MT103)
+    GW->>GW: Parse legacy fields into memory map
+    
+    Note over GW: 2. DETERMINISTIC ENRICHMENT
+    GW->>GW: Run Enrichment Engine (evaluate rules.yaml)
+    GW->>GW: Synthesize enriched ISO 20022 XML
+    GW->>GW: Validate XML against schema (XSD check)
+    
+    Note over GW: 3. CRYPTOGRAPHIC SEALING
+    GW->>DB: Read latest_chain_hash (Serialised Lock)
+    DB-->>GW: Return H_prev
+    GW->>GW: Compute H_orig = SHA256(raw_bytes)
+    GW->>GW: Compute H_enr  = SHA256(enriched_xml)
+    GW->>GW: Compute H_coord = SHA256(H_orig || H_enr || H_prev)
+    
+    Note over GW, W: 4. PARALLEL BLIND SIGNING
+    par Parallel Quorum Request (150ms timeout)
+        GW->>W: POST /v1/sign {hash: H_coord} (Witness Alpha)
+        W->>HSM: Sign Hash via PKCS#11 / KMS
+        HSM-->>W: Return Ed25519 Signature
+        W-->>GW: Signature + Fingerprint
+    and
+        GW->>W: POST /v1/sign {hash: H_coord} (Witness Beta)
+        W->>HSM: Sign Hash via PKCS#11 / KMS
+        HSM-->>W: Return Ed25519 Signature
+        W-->>GW: Signature + Fingerprint
+    and
+        GW->>W: POST /v1/sign {hash: H_coord} (Witness Gamma)
+        W->>HSM: Sign Hash via PKCS#11 / KMS
+        HSM-->>W: Return Ed25519 Signature
+        W-->>GW: Signature + Fingerprint (Timed Out / Ignored)
+    end
+    
+    Note over GW: 5. FINALIZATION & STORAGE
+    GW->>GW: Check Quorum (Ensure >= 2 signatures)
+    GW->>DB: Write Event (Background Thread - Fire & Forget)
+    Note right of DB: SQLite 'no_update' trigger prevents modification
+    GW-->>Bank: Return Proof Bundle (JSON)
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Threat Boundary Card -->
+            <div class="card">
+                <h3>Zero-Trust Process Isolation & Boundaries <span>Threat Mitigation</span></h3>
+                <p>Security boundary diagram illustrating how internet-facing endpoints are segregated from offline relational databases, witness signing processes, and Hardware Security Module enclaves.</p>
+                <div class="mermaid-container">
+                    <pre class="mermaid">
+graph TB
+    subgraph Public Internet [Public Internet - Untrusted Zone]
+        Bank[Core Bank Switch]
+    end
+
+    subgraph DMZ [DMZ / Gateway VPC - Medium Trust Zone]
+        GW[Connex Gateway Server]
+        Rules[rules.yaml]
+        XSD[ISO 20022 XSDs]
+        
+        GW --> Rules
+        GW --> XSD
+    end
+
+    subgraph Internal [Internal Isolated VPC - High Trust Zone]
+        DB[(Append-Only SQLite)]
+        W_A[Witness Alpha]
+        W_B[Witness Beta]
+        W_C[Witness Gamma]
+    end
+
+    subgraph Secure Enclave [Secure Cryptographic Enclave - Zero Trust Zone]
+        HSM_A[Physical HSM / AWS KMS]
+        HSM_B[Physical HSM / AWS KMS]
+        HSM_C[Physical HSM / AWS KMS]
+    end
+
+    %% Network Connections
+    Bank -- "HTTPS POST Port 8080" --> GW
+    GW -- "Append Event Background" --> DB
+    
+    %% Witness Connections
+    GW -- "HTTPS Blind Sign Port 8091" --> W_A
+    GW -- "HTTPS Blind Sign Port 8092" --> W_B
+    GW -- "HTTPS Blind Sign Port 8093" --> W_C
+
+    %% Cryptographic Connections
+    W_A -- "PKCS#11 / TLS Private Link" --> HSM_A
+    W_B -- "PKCS#11 / TLS Private Link" --> HSM_B
+    W_C -- "PKCS#11 / TLS Private Link" --> HSM_C
+
+    %% Styling
+    style Bank fill:#16253B,stroke:#ff0000,stroke-width:2px;
+    style GW fill:#16253B,stroke:#ff8000,stroke-width:2px;
+    style W_A fill:#16253B,stroke:#00e500,stroke-width:2px;
+    style W_B fill:#16253B,stroke:#00e500,stroke-width:2px;
+    style W_C fill:#16253B,stroke:#00e500,stroke-width:2px;
+    style HSM_A fill:#16253B,stroke:#00a3cc,stroke-width:3px;
+    style HSM_B fill:#16253B,stroke:#00a3cc,stroke-width:3px;
+    style HSM_C fill:#16253B,stroke:#00a3cc,stroke-width:3px;
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Geo-Proximity Latency Map Card -->
+            <div class="card">
+                <h3>Geo-Proximity Witness Latency Strategy <span>Multi-Region Routing</span></h3>
+                <p>Because the quorum only requires 2-of-3 signatures, witness nodes are distributed globally to ensure low-latency responses for the East African switch while retaining failover resilience.</p>
+                
+                <div class="latency-map-container" style="background-color: var(--color-bg); border: 1px solid var(--color-border); padding: 2rem; position: relative; min-height: 250px; display: flex; flex-direction: column; justify-content: center; align-items: center; gap: 1.5rem; box-shadow: inset 1px 1px 3px #080f1a;">
+                    <!-- Nairobi Gateway -->
+                    <div style="background-color: var(--color-bg-card); border: 1px solid var(--color-gold); padding: 0.75rem 1.5rem; text-align: center; font-family: var(--font-data); font-weight: bold; width: 220px; z-index: 10; box-shadow: 2px 2px 4px #080f1a;">
+                        [Nairobi Gateway]
+                        <div style="font-size: 0.75rem; color: var(--color-text-secondary); font-weight: normal; margin-top: 0.25rem;">Core switch processing</div>
+                    </div>
+                    
+                    <!-- Connectors & Witnesses Row -->
+                    <div style="display: flex; justify-content: space-around; width: 100%; gap: 1rem; flex-wrap: wrap; margin-top: 1rem; z-index: 10;">
+                        <div style="background-color: var(--color-bg-card); border: 1px solid var(--color-border); padding: 0.75rem; text-align: center; width: 180px; box-shadow: 2px 2px 4px #080f1a;">
+                            <div style="color: var(--color-teal); font-weight: bold; font-size: 0.85rem; margin-bottom: 0.25rem;">Witness Alpha</div>
+                            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">AWS Cape Town</div>
+                            <div style="font-family: var(--font-data); font-size: 0.8rem; color: var(--color-gold); font-weight: bold; margin-top: 0.5rem;">4ms RTT (Direct)</div>
+                        </div>
+                        <div style="background-color: var(--color-bg-card); border: 1px solid var(--color-border); padding: 0.75rem; text-align: center; width: 180px; box-shadow: 2px 2px 4px #080f1a;">
+                            <div style="color: var(--color-teal); font-weight: bold; font-size: 0.85rem; margin-bottom: 0.25rem;">Witness Beta</div>
+                            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">Azure Johannesburg</div>
+                            <div style="font-family: var(--font-data); font-size: 0.8rem; color: var(--color-gold); font-weight: bold; margin-top: 0.5rem;">56ms RTT (Regional)</div>
+                        </div>
+                        <div style="background-color: var(--color-bg-card); border: 1px solid var(--color-border); padding: 0.75rem; text-align: center; width: 180px; box-shadow: 2px 2px 4px #080f1a;">
+                            <div style="color: var(--color-teal); font-weight: bold; font-size: 0.85rem; margin-bottom: 0.25rem;">Witness Gamma</div>
+                            <div style="font-size: 0.75rem; color: var(--color-text-secondary);">GCP Europe-West</div>
+                            <div style="font-family: var(--font-data); font-size: 0.8rem; color: var(--color-gold); font-weight: bold; margin-top: 0.5rem;">78ms RTT (Failover)</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Operations SLA Metrics Card -->
+            <div class="card">
+                <h3>Operations SLA & Network Threshold Metrics <span>Verification Targets</span></h3>
+                <p>Active monitoring parameters set for operational risk management and node failover triggers:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Metric Name</th>
+                            <th>Target SLA</th>
+                            <th>Warning Threshold</th>
+                            <th>Alert Threshold</th>
+                            <th>Operational Remediation Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="highlight-text">Quorum Latency</td>
+                            <td>&lt; 100ms</td>
+                            <td>&gt; 120ms</td>
+                            <td>&gt; 145ms</td>
+                            <td>Auto-triggered routing diagnostic to slow witness.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">Quorum Success Rate</td>
+                            <td>99.99%</td>
+                            <td>&lt; 99.9%</td>
+                            <td>&lt; 99.0%</td>
+                            <td>Page on-call engineer; check witness health check endpoints.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">DB Lock Contention</td>
+                            <td>&lt; 10ms</td>
+                            <td>&gt; 25ms</td>
+                            <td>&gt; 50ms</td>
+                            <td>Trigger DB pool scaling or transaction queue throttling.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">Witness Key Access</td>
+                            <td>0 Unauthorized</td>
+                            <td>1 Audit Fail</td>
+                            <td>&gt; 0 Unauth</td>
+                            <td><strong>Automatic Lockout</strong>: Immediately isolate the node.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">Message Validation</td>
+                            <td>100% Schema</td>
+                            <td>N/A</td>
+                            <td>Any Invalid</td>
+                            <td>Reject payload at Ingress; generate unprocessable incident.</td>
+                        </tr>
+                    </tbody>
+                </table>
             </div>
         </div>
 
