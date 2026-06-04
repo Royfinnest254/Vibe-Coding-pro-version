@@ -10,9 +10,13 @@ The Pro Version protocol utilizes a strict multi-agent verification loop to tran
 
 ```mermaid
 graph TD
-    User([User Prompt]) --> PM[Product Manager Agent]
+    User([User Prompt]) --> TG[Triage Gateway Agent]
+    TG -->|FAST_TRACK: Bypass Council| ENG[Lead Engineer Agent]
+    TG -->|FULL_COUNCIL: Major Feature| PM[Product Manager Agent]
     PM -->|Generates Feature Spec| Spec[Feature Spec & Done-When List]
-    Spec --> ENG[Lead Engineer Agent]
+    Spec --> SKE[Skeptic Agent]
+    SKE -->|Passes Critique| ENG
+    SKE -->|FAIL: Refine Spec| PM
     ENG -->|Writes Code & Sandbox Tests| CODE[Code Artifact & Tests]
     CODE --> SEC[Security Officer Agent]
     SEC -->|Audits against 5 rules| SEC_G[Security Gate Pass?]
@@ -27,7 +31,7 @@ graph TD
 ```
 
 ### The 4 Execution Phases:
-1.  **Specification (AI Council - PM)**: The user prompt is ingested and parsed into functional specifications, schema designs, and strict binary "done when" checklists.
+1.  **Specification (AI Council - PM & Skeptic)**: The user prompt is triaged. If complex, the PM parses requirements, and the Skeptic audits the plan for scaling, logical loops, and visual slop.
 2.  **Implementation (AI Council - Engineer)**: Code is scaffolded inside an isolated sandbox directory (`scratch/`) alongside unit test harnesses.
 3.  **Auditing & Gates (AI Council - Security & QA)**: The code is verified against 5 security non-negotiables, compiled, and run against test assertions.
 4.  **Promotion (AI Council - Writer)**: Documentation is generated and the clean, passing files are promoted to the active project folders.
@@ -36,21 +40,34 @@ graph TD
 
 ## 2. The AI Council Consensus Protocol
 
-To ensure software quality, the main agent coordinates five specialized virtual subagents. Each agent enforces a separate concern during the development cycle.
+To ensure software quality, the main agent coordinates specialized virtual subagents. Each agent enforces a separate concern during the development cycle.
 
 ```mermaid
 sequenceDiagram
     autonumber
     actor User as Operator (You)
+    participant TG as Triage Gateway Agent
     participant PM as Product Manager Agent
+    participant SKE as Skeptic Agent
     participant ENG as Lead Engineer Agent
     participant SEC as Security Officer Agent
     participant QA as QA Lead Agent
     participant TW as Technical Writer Agent
 
-    User->>PM: 1. Submit Prompt Instructions
-    PM->>PM: Parse user intent & design schemas
-    PM->>ENG: 2. Transmit Feature Spec & Done-When Checklist
+    User->>TG: 1. Submit Prompt Instructions
+    alt FAST_TRACK (Bypass Council)
+        TG->>ENG: Route directly to Lead Engineer
+    else FULL_COUNCIL (Complex Feature)
+        TG->>PM: Route to Product Manager
+        PM->>PM: Parse user intent & design schemas
+        PM->>SKE: Submit Spec & Schemas for Audit
+        SKE->>SKE: Challenge assumptions, check scaling/style rules
+        alt Skeptic Critique Fails
+            SKE-->>PM: Re-route for specification refinement
+        else Skeptic Critique Passes
+            SKE->>ENG: 2. Transmit Feature Spec & Done-When Checklist
+        end
+    end
     ENG->>ENG: Write code & test assertions in scratch/ sandbox
     ENG->>SEC: 3. Submit Code Artifact for Audit
     SEC->>SEC: Verify against the 5 security rules
@@ -73,7 +90,9 @@ sequenceDiagram
 
 | Council Role | Key Focus Area | Active Verification Tools |
 | :--- | :--- | :--- |
+| **Triage Gateway** | Prompt complexity classification & routing | Bypass gate criteria list, Fast-track routes |
 | **Product Manager (PM)** | User requirement mapping & functional specs | EARS specification models, done-when checklists |
+| **Skeptic** | Performance profiling & anti-sycophancy audits | Index analysis, scalability checks, visual audits |
 | **Lead Engineer** | Safe, typed modular code implementation | Sandbox directories, strict compiler options, TDD scripts |
 | **Security Officer** | Threat modeling & vulnerability scanning | Parameterized queries, CORS rule maps, Zod verification |
 | **QA Lead** | Build compilation & regression testing | Playwright E2E runners, execution latency clocks |
