@@ -594,6 +594,53 @@
             color: var(--color-text-primary);
             padding: 0 2px;
         }
+
+        /* 4. Absolute Pipeline Flow Diagram */
+        .pipeline-diagram {
+            border: 1px solid var(--color-border);
+            background-color: var(--color-bg);
+            padding: 2rem;
+            margin: 1.5rem 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 1rem;
+            position: relative;
+        }
+
+        .pipeline-node {
+            background-color: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            padding: 1.2rem;
+            width: 210px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .pipeline-node:hover {
+            border-color: var(--color-gold);
+            transform: translateY(-2px);
+        }
+
+        .pipeline-node h5 {
+            font-family: var(--font-data);
+            font-size: 0.85rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            color: var(--color-gold);
+            margin-bottom: 0.5rem;
+        }
+
+        .pipeline-node p {
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            margin: 0;
+        }
+
+        .pipeline-node .badge {
+            margin-top: 0.5rem;
+        }
     </style>
 </head>
 <body>
@@ -635,6 +682,7 @@
                 <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
                 <button class="tab-btn" onclick="switchTab('foundations')">Foundations</button>
                 <button class="tab-btn" onclick="switchTab('disciplines')">The 8 Disciplines</button>
+                <button class="tab-btn" onclick="switchTab('pipeline')">The Absolute Pipeline</button>
                 <button class="tab-btn" onclick="switchTab('antigravity')">Driving Agent</button>
                 <button class="tab-btn" onclick="switchTab('dictionary')">Web Dictionary</button>
                 <button class="tab-btn" onclick="switchTab('kit')">Prompt Templates</button>
@@ -716,6 +764,107 @@
                         <p><em>Secure persistence</em></p>
                     </div>
                 </div>
+            </div>
+        </div>
+
+        <!-- TAB CONTENT: THE ABSOLUTE PIPELINE -->
+        <div id="tab-pipeline" class="chapter-container">
+            <div class="chapter-header">
+                <h2>The Absolute Production Pipeline (APP)</h2>
+                <p>A strict, multi-agent sandbox validation loop that turns simple prompts into verified, zero-slop software.</p>
+            </div>
+
+            <div class="card">
+                <h3>Pipeline Execution Flow <span>Consensus & Sandboxing</span></h3>
+                <p>This flow details how user prompts are parsed, coded, audited, and compiled before being delivered.</p>
+                <div class="pipeline-diagram">
+                    <div class="pipeline-node">
+                        <h5>1. User Prompt</h5>
+                        <p>Simple description or feature request</p>
+                    </div>
+                    <div class="diagram-connector"></div>
+                    <div class="pipeline-node">
+                        <h5>2. AI Council</h5>
+                        <p>Spec, Implementation, and Audit review</p>
+                        <span class="badge">Orchestration Loop</span>
+                    </div>
+                    <div class="diagram-connector"></div>
+                    <div class="pipeline-node">
+                        <h5>3. Sandbox TDD</h5>
+                        <p>Test run in scratch/ before main folders</p>
+                        <span class="badge badge-gold">VERIFIED PASS</span>
+                    </div>
+                    <div class="diagram-connector"></div>
+                    <div class="pipeline-node">
+                        <h5>4. Verified Build</h5>
+                        <p>Lint checked and compiled successfully</p>
+                        <span class="badge">PROMOTED</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card">
+                <h3>The AI Council Roles <span>Multi-Agent Swarm</span></h3>
+                <p>When executing a task, the main agent orchestrates five virtual developer roles to guarantee production-ready results:</p>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Council Role</th>
+                            <th>Responsibilities</th>
+                            <th>Active Tools & Verification Methods</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="highlight-text">Product Manager (PM)</td>
+                            <td>Translates user intent into formal specifications and data schemas.</td>
+                            <td>Spec writer prompts, EARS requirement matrices.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">Lead Engineer</td>
+                            <td>Implements code using strictly defined, modular types.</td>
+                            <td>TDD checks, TypeScript utility structures, modular formatting.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">Security Officer</td>
+                            <td>Audits implementation against data leaks and injections.</td>
+                            <td>CORS limits, parameterized queries, zod schema boundaries.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">QA Lead</td>
+                            <td>Validates build compilation and runs unit/E2E test suites.</td>
+                            <td>Next.js compiler, Playwright browser test logs.</td>
+                        </tr>
+                        <tr>
+                            <td class="highlight-text">Technical Writer</td>
+                            <td>Generates clean readmes, setup guides, and walkthrough summaries.</td>
+                            <td>Clickable symbols, markdown walkthrough generation.</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="card">
+                <h3>Anti-Slop Visual & Code Guidelines <span>Eradicating AI Slop</span></h3>
+                <p>Strict guardrails designed to keep codebases and interfaces professional:</p>
+                <ul>
+                    <li><strong>Font Pairings</strong>: Never use generic fonts. Enforce Georgia for headings and Calibri for body text.</li>
+                    <li><strong>Color Architecture</strong>: Restrict CSS colors to pre-defined HSL brand tokens (Navy, Teal, Gold, Jungle Green).</li>
+                    <li><strong>Prohibited Elements</strong>: Zero glassmorphism (no backdrop blurs), zero gradient backgrounds, zero animated counters, zero shimmer loading screens, and zero canvas background loops.</li>
+                    <li><strong>Status Reports</strong>: Display statuses as uppercase text-only badges: <code>VERIFIED</code>, <code>FAILED</code>, <code>PENDING</code>, <code>ERROR</code>. No colored dots or pulse animations.</li>
+                    <li><strong>Code Cleanliness</strong>: Zero emojis in logs/code, zero commented-out dead code, and every query must map to a strong type (no <code>any</code> bindings).</li>
+                </ul>
+            </div>
+
+            <div class="card">
+                <h3>Sandbox Execution Rules <span>Test-First Isolation</span></h3>
+                <p>To ensure system stability, every change must pass isolated verification checks in the sandbox folder:</p>
+                <ol>
+                    <li>Write a prototype test script inside the <code>scratch/</code> directory.</li>
+                    <li>Execute the script using <code>run_command</code> to capture the terminal stdout and log files.</li>
+                    <li>Inspect the execution log file at <code>C:\Users\roych\.gemini\antigravity\scratch\</code>.</li>
+                    <li>Only copy the finalized code to your active directories once the sandbox tests have been verified green.</li>
+                </ol>
             </div>
         </div>
 
