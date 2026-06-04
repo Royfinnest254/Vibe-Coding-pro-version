@@ -4,6 +4,26 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>The Vibe Coder's Handbook — Pro Version</title>
+    <script src="https://cdn.jsdelivr.net/npm/mermaid@10/dist/mermaid.min.js"></script>
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+            mermaid.initialize({
+                startOnLoad: false,
+                theme: 'base',
+                themeVariables: {
+                    darkMode: true,
+                    background: '#16253B',
+                    primaryColor: '#16253B',
+                    primaryTextColor: '#F8FAFC',
+                    primaryBorderColor: '#C09E5A',
+                    lineColor: '#00869B',
+                    secondaryColor: '#0F1B2D',
+                    tertiaryColor: '#16253B',
+                    fontFamily: 'Calibri, sans-serif'
+                }
+            });
+        });
+    </script>
     <style>
         /* Custom Premium Font Imports */
         @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,200..800;1,200..800&display=swap');
@@ -641,6 +661,248 @@
         .pipeline-node .badge {
             margin-top: 0.5rem;
         }
+
+        /* Interactive Dashboard Metrics Grid */
+        .dashboard-metrics-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .metric-card {
+            background-color: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            padding: 1.5rem;
+            box-shadow: 3px 3px 6px #080f1a, inset 2px 2px 4px #1c2e49;
+            transition: border-color 0.2s ease;
+        }
+
+        .metric-card:hover {
+            border-color: var(--color-teal);
+        }
+
+        .metric-card .m-label {
+            font-family: var(--font-data);
+            font-size: 0.8rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 0.5rem;
+        }
+
+        .metric-card .m-value {
+            font-family: var(--font-headings);
+            font-size: 2rem;
+            color: var(--color-gold);
+            margin-bottom: 0.25rem;
+            line-height: 1.2;
+        }
+
+        .metric-card .m-status {
+            font-family: var(--font-data);
+            font-size: 0.75rem;
+            font-weight: bold;
+            color: var(--color-teal);
+            text-transform: uppercase;
+        }
+
+        /* AI Council Simulator Layout */
+        .simulator-grid {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        @media (max-width: 900px) {
+            .simulator-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+
+        .terminal-box {
+            background-color: #080f1a;
+            border: 1px solid var(--color-border);
+            padding: 1rem;
+            font-family: monospace;
+            font-size: 0.85rem;
+            color: #10B981;
+            height: 300px;
+            overflow-y: auto;
+            white-space: pre-wrap;
+            box-shadow: inset 2px 2px 6px #03060a;
+        }
+
+        .prompt-input-group {
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+            justify-content: space-between;
+        }
+
+        .prompt-select {
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            padding: 0.5rem;
+            font-family: var(--font-body);
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .prompt-select:focus {
+            border-color: var(--color-teal);
+        }
+
+        .prompt-text {
+            background-color: var(--color-bg);
+            border: 1px solid var(--color-border);
+            color: var(--color-text-primary);
+            padding: 0.75rem;
+            font-family: var(--font-body);
+            height: 110px;
+            resize: none;
+            width: 100%;
+            outline: none;
+            transition: border-color 0.2s ease;
+        }
+
+        .prompt-text:focus {
+            border-color: var(--color-teal);
+        }
+
+        .action-btn {
+            background-color: var(--color-teal);
+            color: #FFFFFF;
+            border: 1px solid var(--color-teal);
+            padding: 0.75rem 1.5rem;
+            font-family: var(--font-data);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            box-shadow: 2px 2px 4px #080f1a;
+            align-self: flex-start;
+        }
+
+        .action-btn:hover {
+            background-color: transparent;
+            color: var(--color-teal);
+        }
+
+        .action-btn:disabled {
+            background-color: var(--color-border);
+            border-color: var(--color-border);
+            color: var(--color-text-secondary);
+            cursor: not-allowed;
+            box-shadow: none;
+        }
+
+        /* Step Indicator Progress Bar */
+        .step-indicator-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin: 1.5rem 0 2rem 0;
+            position: relative;
+            background-color: var(--color-bg);
+            padding: 1.5rem 1rem;
+            border: 1px solid var(--color-border);
+        }
+
+        .step-indicator-line {
+            position: absolute;
+            left: 8%;
+            right: 8%;
+            top: 40%;
+            height: 2px;
+            background-color: var(--color-border);
+            z-index: 1;
+        }
+
+        .step-indicator-progress {
+            position: absolute;
+            left: 8%;
+            top: 40%;
+            height: 2px;
+            background-color: var(--color-teal);
+            z-index: 2;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .step-indicator-node {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            z-index: 3;
+            width: 100px;
+            text-align: center;
+        }
+
+        .step-indicator-dot {
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background-color: var(--color-bg-card);
+            border: 2px solid var(--color-border);
+            margin-bottom: 0.5rem;
+            transition: all 0.3s ease;
+        }
+
+        .step-indicator-node.active .step-indicator-dot {
+            border-color: var(--color-gold);
+            background-color: rgba(192, 158, 90, 0.2);
+        }
+
+        .step-indicator-node.completed .step-indicator-dot {
+            border-color: var(--color-teal);
+            background-color: var(--color-teal);
+        }
+
+        .step-indicator-label {
+            font-family: var(--font-data);
+            font-size: 0.75rem;
+            color: var(--color-text-secondary);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: color 0.3s ease;
+        }
+
+        .step-indicator-node.active .step-indicator-label {
+            color: var(--color-gold);
+            font-weight: bold;
+        }
+
+        .step-indicator-node.completed .step-indicator-label {
+            color: var(--color-text-primary);
+        }
+
+        /* Mermaid Chart Display Containers */
+        .mermaid-container {
+            background-color: var(--color-bg-card);
+            border: 1px solid var(--color-border);
+            padding: 2rem;
+            margin-top: 1.5rem;
+            overflow-x: auto;
+            box-shadow: 3px 3px 6px #080f1a;
+        }
+
+        .mermaid-container h4 {
+            margin-top: 0;
+            border-bottom: 1px solid var(--color-border);
+            padding-bottom: 0.5rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .mermaid {
+            display: flex;
+            justify-content: center;
+            background-color: var(--color-bg-card) !important;
+        }
     </style>
 </head>
 <body>
@@ -764,7 +1026,31 @@
                         <p><em>Secure persistence</em></p>
                     </div>
                 </div>
-            </div>
+
+                <div class="mermaid-container" style="margin-top: 2rem;">
+                    <pre class="mermaid">
+graph LR
+    subgraph Browser [Storefront - Untrusted]
+        UI[Browser UI React/Next]
+    end
+    subgraph Gateway [Order Window - Verification]
+        API[API Endpoints]
+        Auth[Auth/CORS Middleware]
+    end
+    subgraph Server [Back Office - Trusted]
+        Logic[Server Business Logic]
+        Limit[Rate Limiting]
+    end
+    subgraph Storage [Filing Cabinet - Persistent]
+        DB[(Database PostgreSQL)]
+    end
+    UI -->|Request Payload| API
+    API -->|Validate Session Keys| Auth
+    Auth -->|Authorized Request| Logic
+    Logic -->|Throttle Checks| Limit
+    Logic -->|Sanitized Read/Write| DB
+                    </pre>
+                </div>
         </div>
 
         <!-- TAB CONTENT: THE ABSOLUTE PIPELINE -->
@@ -774,35 +1060,116 @@
                 <p>A strict, multi-agent sandbox validation loop that turns simple prompts into verified, zero-slop software.</p>
             </div>
 
+            <!-- Dashboard Metrics -->
+            <div class="dashboard-metrics-grid">
+                <div class="metric-card">
+                    <div class="m-label">Sandbox Health</div>
+                    <div class="m-value">100.0%</div>
+                    <div class="m-status">Verified Clean</div>
+                </div>
+                <div class="metric-card">
+                    <div class="m-label">Spec Coverage</div>
+                    <div class="m-value">98.5%</div>
+                    <div class="m-status">Done-When Gated</div>
+                </div>
+                <div class="metric-card">
+                    <div class="m-label">Security Gates</div>
+                    <div class="m-value">5 / 5</div>
+                    <div class="m-status">Verified Pass</div>
+                </div>
+                <div class="metric-card">
+                    <div class="m-label">Build Pipeline</div>
+                    <div class="m-value">PROMOTED</div>
+                    <div class="m-status">Compilation OK</div>
+                </div>
+            </div>
+
+            <!-- Interactive AI Council Simulator -->
             <div class="card">
-                <h3>Pipeline Execution Flow <span>Consensus & Sandboxing</span></h3>
-                <p>This flow details how user prompts are parsed, coded, audited, and compiled before being delivered.</p>
-                <div class="pipeline-diagram">
-                    <div class="pipeline-node">
-                        <h5>1. User Prompt</h5>
-                        <p>Simple description or feature request</p>
+                <h3>AI Council Consensus Simulator <span>Interactive Sandbox Simulation</span></h3>
+                <p>Select a developer prompt or enter your own to simulate how the 5 council subagents debate, review, test, and sign off in consensus before promotion.</p>
+                
+                <!-- Progress Line Indicator -->
+                <div class="step-indicator-row">
+                    <div class="step-indicator-line"></div>
+                    <div class="step-indicator-progress" id="sim-progress"></div>
+                    
+                    <div class="step-indicator-node" id="node-pm">
+                        <div class="step-indicator-dot"></div>
+                        <div class="step-indicator-label">Product Mgr</div>
                     </div>
-                    <div class="diagram-connector"></div>
-                    <div class="pipeline-node">
-                        <h5>2. AI Council</h5>
-                        <p>Spec, Implementation, and Audit review</p>
-                        <span class="badge">Orchestration Loop</span>
+                    <div class="step-indicator-node" id="node-eng">
+                        <div class="step-indicator-dot"></div>
+                        <div class="step-indicator-label">Lead Eng</div>
                     </div>
-                    <div class="diagram-connector"></div>
-                    <div class="pipeline-node">
-                        <h5>3. Sandbox TDD</h5>
-                        <p>Test run in scratch/ before main folders</p>
-                        <span class="badge badge-gold">VERIFIED PASS</span>
+                    <div class="step-indicator-node" id="node-sec">
+                        <div class="step-indicator-dot"></div>
+                        <div class="step-indicator-label">Security</div>
                     </div>
-                    <div class="diagram-connector"></div>
-                    <div class="pipeline-node">
-                        <h5>4. Verified Build</h5>
-                        <p>Lint checked and compiled successfully</p>
-                        <span class="badge">PROMOTED</span>
+                    <div class="step-indicator-node" id="node-qa">
+                        <div class="step-indicator-dot"></div>
+                        <div class="step-indicator-label">QA Lead</div>
+                    </div>
+                    <div class="step-indicator-node" id="node-tw">
+                        <div class="step-indicator-dot"></div>
+                        <div class="step-indicator-label">Tech Writer</div>
+                    </div>
+                </div>
+
+                <div class="simulator-grid">
+                    <!-- Controls -->
+                    <div class="prompt-input-group">
+                        <div>
+                            <h4 style="margin-top:0;">1. Select Spec Scenario</h4>
+                            <select class="prompt-select" id="prompt-template-select" onchange="selectPrompt()">
+                                <option value="">-- Choose pre-configured scenario --</option>
+                                <option value="Implement server-side JWT authentication session validation hooks">JWT Authentication Setup</option>
+                                <option value="Integrate offline SQLite DB tables with stock movements and withdrawal gates">SQLite Local Schema Integration</option>
+                                <option value="Construct Stripe checkout webhooks and invoice ledgers behind verify middleware">Stripe Checkout Endpoint</option>
+                                <option value="Build animal registry form layout using Calibri body and Georgia headings">CALIBRI/GEORGIA Front-end Component</option>
+                            </select>
+                        </div>
+                        <div>
+                            <h4>2. Refine Prompt Instructions</h4>
+                            <textarea class="prompt-text" id="custom-prompt" placeholder="Describe the feature or bug to solve..."></textarea>
+                        </div>
+                        <button class="action-btn" id="sim-run-btn" onclick="runSimulator()">Run Simulation</button>
+                    </div>
+
+                    <!-- Terminal Output -->
+                    <div>
+                        <h4 style="margin-top:0;">Live Consensus Log Stream</h4>
+                        <div class="terminal-box" id="sim-terminal">>>> Terminal ready. Select a spec prompt above and click "Run Simulation" to execute the consensus validation loop.</div>
                     </div>
                 </div>
             </div>
 
+            <!-- Mermaid Consensus Diagram -->
+            <div class="card">
+                <h3>Absolute Promotion Pathway <span>Visual Consensus Topology</span></h3>
+                <p>This sequence outlines how changes flow from spec writing, TDD sandbox execution, and five-point audits to final directory promotion.</p>
+                <div class="mermaid-container">
+                    <pre class="mermaid">
+graph TD
+    User([User Prompt]) --> PM[Product Manager Agent]
+    PM -->|Generates Feature Spec| Spec[Feature Spec & Acceptance Criteria]
+    Spec --> ENG[Lead Engineer Agent]
+    ENG -->|Writes Code & Sandbox Tests| CODE[Code Artifact & Tests]
+    CODE --> SEC[Security Officer Agent]
+    SEC -->|Audits against 5 rules| SEC_G[Security Gate Pass?]
+    SEC_G -->|FAIL: Re-slice| ENG
+    SEC_G -->|PASS| QA[QA Lead Agent]
+    QA -->|Runs compilation & E2E tests| QA_G[Test Pass?]
+    QA_G -->|FAIL: Fix code| ENG
+    QA_G -->|PASS| TW[Technical Writer Agent]
+    TW -->|Generates README & Walkthrough| DOCS[Durable Documentation]
+    DOCS --> Promote[Promote to Production Directory]
+    Promote --> Live[VERIFIED Release]
+                    </pre>
+                </div>
+            </div>
+
+            <!-- Interactive Details -->
             <div class="card">
                 <h3>The AI Council Roles <span>Multi-Agent Swarm</span></h3>
                 <p>When executing a task, the main agent orchestrates five virtual developer roles to guarantee production-ready results:</p>
@@ -966,6 +1333,20 @@
                             <div class="git-commit" data-label="Slice 3 (Verify)"></div>
                         </div>
                     </div>
+                </div>
+
+                <div class="mermaid-container" style="margin-top: 2rem;">
+                    <pre class="mermaid">
+gitGraph
+    commit id: "v1.0.0 (Release)"
+    branch feature-x
+    checkout feature-x
+    commit id: "Slice 1 (Form UI)"
+    commit id: "Slice 2 (API)"
+    commit id: "Slice 3 (Verify)"
+    checkout main
+    merge feature-x tag: "v1.1.0"
+                    </pre>
                 </div>
                 <p style="font-size: 0.85rem; color: var(--color-text-secondary);">
                     <em>Git Guideline:</em> Create a feature branch for experiments. Commit every time a micro-slice passes verification. If a slice breaks everything, scrap the branch and restore from <code>main</code>.
@@ -1297,6 +1678,131 @@ INSTRUCTIONS:
 
             const targetTab = document.getElementById(`tab-${tabId}`);
             if (targetTab) targetTab.classList.add('active');
+
+            // Trigger Mermaid render loops
+            setTimeout(() => {
+                try {
+                    mermaid.run();
+                } catch(err) {
+                    console.log("Mermaid load deferred: " + err.message);
+                }
+            }, 80);
+        }
+
+        // Mock prompts synchronizer
+        function selectPrompt() {
+            const selectEl = document.getElementById('prompt-template-select');
+            const textEl = document.getElementById('custom-prompt');
+            if (selectEl.value) {
+                textEl.value = selectEl.value;
+            }
+        }
+
+        // AI Council Simulation Data
+        const mockLogs = {
+            pm: [
+                "[Product Manager] Staging prompt ingestion: \"{prompt}\"",
+                "[Product Manager] Parsing schema specifications and relational requirements...",
+                "[Product Manager] Formulating Feature Spec brief and data definitions.",
+                "[Product Manager] Setting strict Acceptance Criteria ('Done When' checklists).",
+                "[Product Manager] Feature Spec finalized. Promoted to consensus review. Status: VERIFIED."
+            ],
+            eng: [
+                "[Lead Engineer] Initializing developer workspace environment...",
+                "[Lead Engineer] Creating isolated sandbox testbed: scratch/harness_test.js",
+                "[Lead Engineer] Scaffolded mock SQLite model hooks and validation functions.",
+                "[Lead Engineer] Writing unit test blocks mapping happy & unhappy execution branches.",
+                "[Lead Engineer] Executing sandbox suite: all test assertions resolved (green).",
+                "[Lead Engineer] Code files checked against guidelines. Promoted to audit. Status: VERIFIED."
+            ],
+            sec: [
+                "[Security Officer] Reviewing staging changes against the 5 non-negotiables...",
+                "[Security Officer] Check 1/5: Server-side authorization verification - Passed.",
+                "[Security Officer] Check 2/5: Scanned for raw committed keys/credentials - Clean.",
+                "[Security Officer] Check 3/5: Zod sanitizers and SQL parameterized queries active - Passed.",
+                "[Security Officer] Check 4/5: API CORS headers and rate-limit parameters checked - OK.",
+                "[Security Officer] Check 5/5: Row-level data tenant isolation active - Passed.",
+                "[Security Officer] Security audit completed. Vulnerabilities: ZERO. Status: VERIFIED."
+            ],
+            qa: [
+                "[QA Lead] Executing full compiler build sequence...",
+                "[QA Lead] NextJS framework build compilation: SUCCESS.",
+                "[QA Lead] Invoking Playwright automation suite (18 assertion gates)...",
+                "[QA Lead] Test Run Results: 18/18 tests passed successfully.",
+                "[QA Lead] Latency: 42.1ms (measured via process.hrtime.bigint).",
+                "[QA Lead] Promotion checks validated. Status: VERIFIED."
+            ],
+            tw: [
+                "[Tech Writer] Parsing codebase structures and export definitions...",
+                "[Tech Writer] Generating updated relative markdown README links.",
+                "[Tech Writer] Formulated walkthrough.md and updated checklist task.md.",
+                "[Tech Writer] Git commit staged: docs: integrate Absolute Production features.",
+                "[Tech Writer] Pushed package updates to remote git repository main branch.",
+                "[Tech Writer] Complete pipeline promotion cycle complete. Status: VERIFIED."
+            ]
+        };
+
+        let simInterval = null;
+
+        function runSimulator() {
+            const promptText = document.getElementById('custom-prompt').value.trim() || "Add SQLite database synchronization hooks";
+            const btn = document.getElementById('sim-run-btn');
+            const terminal = document.getElementById('sim-terminal');
+            
+            // Lock UI controls
+            btn.disabled = true;
+            terminal.textContent = ">>> INITIALIZING ABSOLUTE PIPELINE ORCHESTRATOR...\n";
+            
+            const steps = ['pm', 'eng', 'sec', 'qa', 'tw'];
+            
+            // Clear prior states
+            steps.forEach(s => {
+                const el = document.getElementById(`node-${s}`);
+                if (el) el.className = "step-indicator-node";
+            });
+            document.getElementById('sim-progress').style.width = "0%";
+            
+            let currentStepIdx = 0;
+            let currentLogIdx = 0;
+            
+            if (simInterval) clearInterval(simInterval);
+            
+            simInterval = setInterval(() => {
+                const step = steps[currentStepIdx];
+                const activeNode = document.getElementById(`node-${step}`);
+                
+                if (activeNode && !activeNode.classList.contains('active')) {
+                    activeNode.classList.add('active');
+                }
+                
+                let logLine = mockLogs[step][currentLogIdx];
+                logLine = logLine.replace("{prompt}", promptText);
+                
+                terminal.textContent += logLine + "\n";
+                terminal.scrollTop = terminal.scrollHeight;
+                
+                currentLogIdx++;
+                
+                if (currentLogIdx >= mockLogs[step].length) {
+                    if (activeNode) {
+                        activeNode.classList.remove('active');
+                        activeNode.classList.add('completed');
+                    }
+                    
+                    currentStepIdx++;
+                    currentLogIdx = 0;
+                    
+                    const progressPercent = (currentStepIdx / steps.length) * 100;
+                    document.getElementById('sim-progress').style.width = `${progressPercent}%`;
+                    
+                    if (currentStepIdx >= steps.length) {
+                        clearInterval(simInterval);
+                        terminal.textContent += "\n>>> PIPELINE EXECUTION VERIFIED. DEPLOYMENT PROMOTED TO STAGING.\n";
+                        terminal.scrollTop = terminal.scrollHeight;
+                        btn.disabled = false;
+                    }
+                }
+            }, 300);
         }
 
         // Search handbook controller
