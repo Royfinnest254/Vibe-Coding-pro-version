@@ -3,6 +3,8 @@ bin/
 *.exe
 *.test
 *.out
+dist/
+build/
 
 # Runtime data (never commit keys or database)
 data/
@@ -13,24 +15,38 @@ keys/
 *.key
 !*.key.pub
 
-# Benchmark results (too large for repo)
+# Benchmark results
 bench/results/
+
+# Secrets and environment variables
+.env
+.env.*
+.env.local
+.env.example
 
 # Legacy and Large files
 *.webp
 *.zip
 vault_resp.json
 scratch/
-.env
-.env.example
 
-# Editor
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+
+# Claude and Gemini directories
+.claude/
+.gemini/
+.antigravity/
+
+# IDE and Editor files
 .vscode/
 .idea/
 *.swp
 *~
 
-# OS
+# OS and Logs
 .DS_Store
 Thumbs.db
-node_modules
+*.log
