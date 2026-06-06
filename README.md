@@ -273,45 +273,7 @@ Active monitoring rules enforced in production switches:
 
 ---
 
-## 6. Run the Demo (5 Minutes)
-
-CONNEX is designed for transparency. You can build and run a full coordination cycle with real cryptographic signatures on a clean machine.
-
-**Prerequisites:**
-- Go 1.22+
-- Python 3.x
-- SQLite3
-
-```bash
-# 1. Clone and build
-make build
- 
-# 2. Run the end-to-end demo
-# This starts 3 witnesses, 1 gateway, processes 10 transactions, 
-# verifies them with Python, and tests tamper detection.
-make demo
-```
-
-The CONNEX runtime consists of six isolated processes:
-1.  **Gateway (Go):** The core coordinator. Parses ISO 8583, runs the rules engine, assembles ISO 20022 XML, and handles the witness quorum.
-2.  **Witness Alpha, Beta, Gamma (Go):** Three independent signing nodes running on ports 8091-8093. Each manages its own Ed25519 keypair.
-3.  **Storage (SQLite):** An append-only ledger enforced by database-level triggers.
-4.  **Independent Verifier (Python):** A standalone tool that recomputes hashes and verifies signatures to prove data integrity.
-
-### Reproducible Proof
-The `verify/verify.py` script is the source of truth for the technical claim. It does not import gateway code. It uses `pynacl` to prove:
-- **Integrity:** The enriched XML has not been modified since signing.
-- **Linkage:** The record is correctly linked to the previous state in the hash chain.
-- **Authority:** At least two independent witnesses signed the specific coordination hash.
-
-```bash
-# Verify a specific bundle
-python3 verify/verify.py bench/results/demo-bundles/CX-2026...json keys/
-```
-
----
-
-## 7. The Build Rhythm & Startup Ritual
+## 6. The Build Rhythm & Startup Ritual
 
 ### The 6-Step Loop:
 ```
@@ -336,9 +298,9 @@ python3 verify/verify.py bench/results/demo-bundles/CX-2026...json keys/
 
 ---
 
-## 8. Reusable Prompt Templates Kit
+## 7. Reusable Prompt Templates Kit
 
-### 8.1 Feature Specification Prompt
+### 7.1 Feature Specification Prompt
 Use this template to brief the agent and trigger the plan-gate:
 ```text
 FEATURE: [Short, one-line feature name]
@@ -380,7 +342,7 @@ CONSTRAINTS:
 - Follow the rules defined in AGENTS.md.
 ```
 
-### 8.2 Security Audit Prompt
+### 7.2 Security Audit Prompt
 Use this template to verify proposed code artifacts:
 ```text
 Review the proposed implementation against the 5 security non-negotiables:
@@ -397,7 +359,7 @@ For each rule:
 - Highlight any concerns or remediation steps if a rule is not fully satisfied.
 ```
 
-### 8.3 Debugging Diagnosis Prompt
+### 7.3 Debugging Diagnosis Prompt
 Use this template to handle exceptions systematically:
 ```text
 Here is an issue that needs debugging:
